@@ -1,0 +1,116 @@
+[gd_scene format=3 uid="uid://ce3ncphvig51q"]
+
+[ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="1_nfbaj"]
+[ext_resource type="Texture2D" uid="uid://d04gwejmqp62y" path="res://Textures/nyan_cat_background_by_kento1_d3l6i50-pre.jpg" id="2_cqbsj"]
+[ext_resource type="Script" uid="uid://chnglujl74cfo" path="res://Objects/pages/news.gd" id="2_ouhk3"]
+[ext_resource type="Script" uid="uid://d0scdid178clf" path="res://Resources/content_page.gd" id="3_mfrdi"]
+[ext_resource type="PackedScene" uid="uid://dve73nd3236f3" path="res://Objects/pages/new.tscn" id="3_ouhk3"]
+
+[sub_resource type="GDScript" id="GDScript_815dd"]
+
+[sub_resource type="Resource" id="Resource_mfrdi"]
+script = ExtResource("3_mfrdi")
+metadata/_custom_type_script = "uid://d0scdid178clf"
+
+[node name="News" type="Control" unique_id=289813588]
+custom_minimum_size = Vector2(1024, 1024)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_nfbaj")
+script = ExtResource("2_ouhk3")
+content = SubResource("Resource_mfrdi")
+article_scene = ExtResource("3_ouhk3")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1325030262]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_cqbsj")
+stretch_mode = 1
+
+[node name="Header" type="Panel" parent="." unique_id=1982638670]
+modulate = Color(0.7137255, 0.8627451, 1, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_bottom = 188.0
+grow_horizontal = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Header" unique_id=228684260]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -192.0
+offset_top = -63.0
+offset_right = 192.0
+offset_bottom = 63.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 48
+text = "NEWS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=15840137]
+modulate = Color(0.7137255, 0.8627451, 1, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -480.0
+offset_top = -311.0
+offset_right = 480.0
+offset_bottom = 314.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer" unique_id=1727926049]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="Header2" type="Panel" parent="." unique_id=214358274]
+modulate = Color(0.7137255, 0.8627451, 1, 1)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -188.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Header2" unique_id=841940358]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -192.0
+offset_top = -63.0
+offset_right = 192.0
+offset_bottom = 63.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 48
+text = "NEWS"
+horizontal_alignment = 1
+vertical_alignment = 1

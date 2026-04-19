@@ -1,0 +1,89 @@
+[gd_scene format=3 uid="uid://db4cljo8nb3so"]
+
+[ext_resource type="Script" uid="uid://bimyj15wvh3vp" path="res://Objects/forum.gd" id="1_nfrym"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_m3kkr"]
+font_size = 64
+
+[sub_resource type="LabelSettings" id="LabelSettings_nfrym"]
+font_size = 32
+
+[node name="Forum" type="Control" unique_id=1087204108]
+custom_minimum_size = Vector2(1024, 1024)
+layout_mode = 3
+anchor_top = -0.29000002
+anchor_right = 1.0
+anchor_bottom = 1.2900001
+offset_top = 187.92001
+offset_bottom = -187.92004
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_nfrym")
+
+[node name="MainContainer" type="Panel" parent="." unique_id=1575695112]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -360.0
+offset_right = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Header" type="Panel" parent="MainContainer" unique_id=1001320239]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 188.0
+grow_horizontal = 2
+
+[node name="Title" type="Label" parent="MainContainer/Header" unique_id=927897981]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.5
+offset_top = -11.5
+offset_right = 20.5
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "torchan"
+label_settings = SubResource("LabelSettings_m3kkr")
+
+[node name="Content" type="ScrollContainer" parent="MainContainer" unique_id=516906239]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ContentList" type="VBoxContainer" parent="MainContainer/Content" unique_id=1685877935]
+layout_mode = 2
+
+[node name="Footer" type="Panel" parent="MainContainer" unique_id=821798560]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -132.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="FooterLabel" type="Label" parent="MainContainer/Footer" unique_id=1380547454]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "torchan1"
+label_settings = SubResource("LabelSettings_nfrym")

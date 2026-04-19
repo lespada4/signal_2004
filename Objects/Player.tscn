@@ -1,0 +1,84 @@
+[gd_scene format=3 uid="uid://dkq04ltf51tju"]
+
+[ext_resource type="Script" uid="uid://dfxguass7dwj" path="res://Scripts/Player.gd" id="1_8r7yd"]
+[ext_resource type="Shader" uid="uid://bbf4xgucu6u05" path="res://Shader/PSXPost.gdshader" id="2_n6db0"]
+[ext_resource type="AudioStream" uid="uid://b28772p7a0hhm" path="res://Audio/36. 46415 Jobro Dramatic-Piano-2 (mp3cut.net).mp3" id="3_yk4ok"]
+[ext_resource type="Shader" uid="uid://drxa5cym3je7u" path="res://Objects/Sanity.gdshader" id="4_gijnf"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n6db0"]
+radius = 0.37
+
+[sub_resource type="QuadMesh" id="QuadMesh_8r7yd"]
+size = Vector2(2, 2)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yk4ok"]
+render_priority = 0
+shader = ExtResource("2_n6db0")
+shader_parameter/enable_fog = true
+shader_parameter/fog_color = Color(0, 0, 0, 1)
+shader_parameter/noise_color = Color(0.86898494, 0.8689849, 0.8689849, 1)
+shader_parameter/fog_distance = 13.00000057
+shader_parameter/fog_fade_range = 10.0000004275
+shader_parameter/enable_noise = false
+shader_parameter/noise_time_fac = 0.10000000149012
+shader_parameter/enable_color_limitation = true
+shader_parameter/color_levels = 32
+shader_parameter/enable_dithering = false
+shader_parameter/dither_strength = 1.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_8r7yd"]
+radius = 0.1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_u60sl"]
+shader = ExtResource("4_gijnf")
+shader_parameter/fish_intensity = 0.30000001425
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_gijnf"]
+
+[node name="Player" type="CharacterBody3D" unique_id=796169799 groups=["player"]]
+script = ExtResource("1_8r7yd")
+max_hear_distance = 10.0
+max_terror_volume_db = -16.0
+walk_speed = 6.0
+bob_amount = 0.1
+attraction_radius = 10.0
+attraction_strength = 0.8
+attraction_max_angle = 50.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1870890099]
+shape = SubResource("CapsuleShape3D_n6db0")
+
+[node name="Campivot" type="Node3D" parent="." unique_id=1537547167]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.56189775, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Campivot" unique_id=229597438]
+current = true
+far = 25.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Campivot/Camera3D" unique_id=409028514]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.23864406)
+mesh = SubResource("QuadMesh_8r7yd")
+surface_material_override/0 = SubResource("ShaderMaterial_yk4ok")
+
+[node name="Interaction_Ray" type="ShapeCast3D" parent="Campivot/Camera3D" unique_id=540766702]
+shape = SubResource("SphereShape3D_8r7yd")
+target_position = Vector3(0, 0, -2)
+collision_mask = 2
+
+[node name="InteractionRay" type="RayCast3D" parent="Campivot" unique_id=111618508]
+target_position = Vector3(0, 0, -2)
+collision_mask = 2
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=630933733]
+stream = ExtResource("3_yk4ok")
+volume_db = -9.454
+pitch_scale = 0.2
+
+[node name="Shader" type="TextureRect" parent="." unique_id=336656528]
+material = SubResource("ShaderMaterial_u60sl")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("CanvasTexture_gijnf")

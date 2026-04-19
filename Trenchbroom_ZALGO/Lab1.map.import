@@ -1,0 +1,14 @@
+[remap]
+
+importer="func_godot.map"
+type="Resource"
+uid="uid://d31egkj42gbhr"
+path="res://.godot/imported/Lab1.map-c328ecee4eb48b16b77b3bc3e952f055.tres"
+
+[deps]
+
+source_file="res://Trenchbroom_ZALGO/Lab1.map"
+dest_files=["res://.godot/imported/Lab1.map-c328ecee4eb48b16b77b3bc3e952f055.tres"]
+
+[params]
+

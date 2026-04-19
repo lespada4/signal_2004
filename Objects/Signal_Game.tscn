@@ -1,0 +1,110 @@
+[gd_scene format=3 uid="uid://qw5lw14lp1cy"]
+
+[ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="1_m1yrb"]
+[ext_resource type="Script" uid="uid://crbhksy3amq0o" path="res://Objects/signal_game.gd" id="1_u8iu5"]
+[ext_resource type="Shader" uid="uid://cb7gwr451pya5" path="res://Shader/Grid.gdshader" id="3_20sqa"]
+[ext_resource type="Script" uid="uid://bbsha22l8xor2" path="res://Objects/zalgofy.gd" id="3_m1yrb"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8gueo"]
+shader = ExtResource("3_20sqa")
+shader_parameter/line_width = 3.0
+shader_parameter/cell_size = 128.0
+shader_parameter/line_color = Color(1.0210336, 0.6779229, 0.0975996, 1)
+shader_parameter/grid_offset = Vector2(0, 0)
+
+[node name="GameView" type="Control" unique_id=1218941484]
+texture_filter = 1
+custom_minimum_size = Vector2(1024, 1024)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(512, 512)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = ExtResource("1_m1yrb")
+script = ExtResource("1_u8iu5")
+line_margin = 512.0
+
+[node name="Panel" type="Panel" parent="." unique_id=796501588]
+modulate = Color(0.74558026, 0.7455802, 0.7455802, 1)
+texture_filter = 1
+material = SubResource("ShaderMaterial_8gueo")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(256, 256)
+
+[node name="GraphArea" type="Control" parent="." unique_id=1180858308]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -98.0
+offset_right = 100.0
+offset_bottom = 98.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ReferenceLine" type="Line2D" parent="GraphArea" unique_id=1040681706]
+texture_filter = 1
+scale = Vector2(2, 2)
+points = PackedVector2Array(0, 0, 0, 0)
+width = 8.0
+default_color = Color(0, 0.5351598, 0.5690742, 1)
+
+[node name="PlayerLine" type="Line2D" parent="GraphArea" unique_id=84678370]
+texture_filter = 1
+scale = Vector2(2, 2)
+width = 8.0
+default_color = Color(2.3102762e-06, 0.8919261, 0.9118365, 1)
+
+[node name="Panel2" type="Panel" parent="." unique_id=200923973]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.20400001
+anchor_right = 0.5
+anchor_bottom = 0.20400001
+offset_left = -181.0
+offset_top = -91.48799
+offset_right = 181.0
+offset_bottom = 91.10399
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(128, 32)
+
+[node name="Label" type="RichTextLabel" parent="Panel2" unique_id=790644584]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -155.0
+offset_top = -77.0
+offset_right = 155.0
+offset_bottom = 79.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(160, 107.5)
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+text = "signal_catcher"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("3_m1yrb")
+zalgo_enabled = false
+zalgo_intensity = 0
+source_text = "signal_catcher"

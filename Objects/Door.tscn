@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://xmlk0em8vj6v"]
+
+[ext_resource type="Script" uid="uid://by13e35jqslud" path="res://Door.gd" id="1_ni8px"]
+
+[sub_resource type="Gradient" id="Gradient_ni8px"]
+colors = PackedColorArray(0, 0, 0, 1, 0.5409905, 0.5409905, 0.5409905, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_7ihvk"]
+seed = 40
+frequency = 0.0247
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_65nwm"]
+width = 64
+height = 64
+noise = SubResource("FastNoiseLite_7ihvk")
+color_ramp = SubResource("Gradient_ni8px")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8cbex"]
+albedo_texture = SubResource("NoiseTexture2D_65nwm")
+texture_filter = 0
+
+[sub_resource type="BoxMesh" id="BoxMesh_qwlm0"]
+material = SubResource("StandardMaterial3D_8cbex")
+size = Vector3(1.4, 2.4, 0.15)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ni8px"]
+data = PackedVector3Array(-0.7, 1.1999999, 0.074999996, 0.7, 1.1999999, 0.074999996, -0.7, -1.1999999, 0.074999996, 0.7, 1.1999999, 0.074999996, 0.7, -1.1999999, 0.074999996, -0.7, -1.1999999, 0.074999996, 0.7, 1.1999999, -0.074999996, -0.7, 1.1999999, -0.074999996, 0.7, -1.1999999, -0.074999996, -0.7, 1.1999999, -0.074999996, -0.7, -1.1999999, -0.074999996, 0.7, -1.1999999, -0.074999996, 0.7, 1.1999999, 0.074999996, 0.7, 1.1999999, -0.074999996, 0.7, -1.1999999, 0.074999996, 0.7, 1.1999999, -0.074999996, 0.7, -1.1999999, -0.074999996, 0.7, -1.1999999, 0.074999996, -0.7, 1.1999999, -0.074999996, -0.7, 1.1999999, 0.074999996, -0.7, -1.1999999, -0.074999996, -0.7, 1.1999999, 0.074999996, -0.7, -1.1999999, 0.074999996, -0.7, -1.1999999, -0.074999996, 0.7, 1.1999999, 0.074999996, -0.7, 1.1999999, 0.074999996, 0.7, 1.1999999, -0.074999996, -0.7, 1.1999999, 0.074999996, -0.7, 1.1999999, -0.074999996, 0.7, 1.1999999, -0.074999996, -0.7, -1.1999999, 0.074999996, 0.7, -1.1999999, 0.074999996, -0.7, -1.1999999, -0.074999996, 0.7, -1.1999999, 0.074999996, 0.7, -1.1999999, -0.074999996, -0.7, -1.1999999, -0.074999996)
+
+[node name="StaticBody3D" type="StaticBody3D" unique_id=877191734]
+collision_layer = 3
+collision_mask = 4
+script = ExtResource("1_ni8px")
+open_speed = 8.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1227585233]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76264906, 0.18632734, 0)
+mesh = SubResource("BoxMesh_qwlm0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1345533043]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76264906, 0.18632734, 0)
+shape = SubResource("ConcavePolygonShape3D_ni8px")

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://cu5ieb08ui7ht"]
+
+[ext_resource type="Script" uid="uid://cahrl7qs2cur1" path="res://Objects/it.gd" id="1_gx6kv"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gx6kv"]
+albedo_color = Color(0, 0, 0, 1)
+billboard_mode = 1
+
+[sub_resource type="SphereMesh" id="SphereMesh_quvie"]
+material = SubResource("StandardMaterial3D_gx6kv")
+radial_segments = 9
+rings = 6
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_quvie"]
+
+[node name="it" type="CharacterBody3D" unique_id=594121183 groups=["enemy"]]
+collision_layer = 8
+collision_mask = 4
+script = ExtResource("1_gx6kv")
+teleport_interval = 1.0
+min_spawn_distance = 5.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=734257204]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_quvie")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2638710]
+shape = SubResource("CapsuleShape3D_quvie")
+
+[node name="Timer" type="Timer" parent="." unique_id=349028132]

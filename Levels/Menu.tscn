@@ -1,0 +1,108 @@
+[gd_scene format=3 uid="uid://8iogfcseqnke"]
+
+[ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="1_vww8b"]
+[ext_resource type="Script" uid="uid://d1q5x50qtiswy" path="res://Levels/menu.gd" id="2_bdpv0"]
+[ext_resource type="PackedScene" uid="uid://d0p25nybu1von" path="res://Levels/lab.tscn" id="3_8t5nu"]
+[ext_resource type="Texture2D" uid="uid://3o3a1phfw0e" path="res://Textures/RWall_32.png" id="4_6a0hj"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_vuwk1"]
+font_size = 48
+
+[node name="Control" type="Control" unique_id=1261561313]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_vww8b")
+script = ExtResource("2_bdpv0")
+game_scene = ExtResource("3_8t5nu")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=626902318]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_6a0hj")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=736936071]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.36100003
+anchor_top = 0.224
+anchor_right = 0.63900006
+anchor_bottom = 0.776
+offset_left = -103.87204
+offset_top = -0.15200806
+offset_right = 103.87195
+offset_bottom = 0.15197754
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=1629313312]
+layout_mode = 2
+size_flags_vertical = 2
+text = "SIGNAL.2004"
+label_settings = SubResource("LabelSettings_vuwk1")
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="VBoxContainer" unique_id=477980007]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_vertical = 10
+text = "START"
+
+[node name="SettingsButton" type="Button" parent="VBoxContainer" unique_id=1266623123]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_vertical = 6
+text = "OPTIONS"
+
+[node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=1331244442]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_vertical = 2
+text = "QUIT"
+
+[node name="SettingsPanel" type="PanelContainer" parent="." unique_id=176586608]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.32500002
+anchor_right = 0.675
+anchor_bottom = 1.0
+offset_left = -0.4000244
+offset_top = 72.0
+offset_right = 0.39996338
+offset_bottom = -72.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SettingsPanel" unique_id=375746541]
+layout_mode = 2
+theme_override_constants/separation = 100
+alignment = 1
+
+[node name="Options" type="Label" parent="SettingsPanel/VBoxContainer" unique_id=1009320951]
+layout_mode = 2
+text = "OPTIONS"
+label_settings = SubResource("LabelSettings_vuwk1")
+horizontal_alignment = 1
+
+[node name="VolumeSlider" type="HSlider" parent="SettingsPanel/VBoxContainer" unique_id=535656529]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="Resolution" type="OptionButton" parent="SettingsPanel/VBoxContainer" unique_id=1250467768]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="SettingsPanel/VBoxContainer" unique_id=1301491457]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "BACK"

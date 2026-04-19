@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://b6w2q5bf2fivi"]
+
+[ext_resource type="PackedScene" uid="uid://dkq04ltf51tju" path="res://Objects/Player.tscn" id="1_pbelu"]
+
+[sub_resource type="Gradient" id="Gradient_kycxd"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.040449437, 0.103370786, 0.13483146)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_pa6j6"]
+gradient = SubResource("Gradient_kycxd")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(2, 1)
+
+[node name="World" type="Node3D" unique_id=805871598]
+process_mode = 3
+
+[node name="Player" parent="." unique_id=796169799 instance=ExtResource("1_pbelu")]
+
+[node name="UI" type="Control" parent="." unique_id=253010532]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Aim" type="TextureRect" parent="UI" unique_id=1255549675]
+modulate = Color(1, 1, 1, 0.76862746)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -48.0
+offset_top = -48.0
+offset_right = 48.0
+offset_bottom = 48.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(48, 48)
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_pa6j6")
