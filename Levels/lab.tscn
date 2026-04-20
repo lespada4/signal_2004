@@ -21,7 +21,9 @@
 [ext_resource type="Material" uid="uid://6wyguk0k67pk" path="res://Textures/Tile_32.tres" id="20_o0y7i"]
 [ext_resource type="PackedScene" uid="uid://qw5lw14lp1cy" path="res://Objects/Signal_Game.tscn" id="20_vvy6e"]
 [ext_resource type="PackedScene" uid="uid://c3gypcp1k4qoj" path="res://Objects/panel_radar.tscn" id="21_8d7l4"]
-[ext_resource type="PackedScene" uid="uid://ce3ncphvig51q" path="res://Objects/pages/news.tscn" id="21_a6ytt"]
+[ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="21_qwlm0"]
+[ext_resource type="Script" uid="uid://bcgaim0en2y45" path="res://Resources/zalgofy.gd" id="22_1u3im"]
+[ext_resource type="Texture2D" uid="uid://d04gwejmqp62y" path="res://Textures/nyan_cat_background_by_kento1_d3l6i50-pre.jpg" id="23_rnudo"]
 [ext_resource type="PackedScene" uid="uid://cu5ieb08ui7ht" path="res://Objects/it.tscn" id="24_a6ytt"]
 [ext_resource type="PackedScene" uid="uid://xmlk0em8vj6v" path="res://Objects/Door.tscn" id="25_ufsj7"]
 
@@ -1151,6 +1153,134 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_arm04")
 
+[sub_resource type="GDScript" id="GDScript_5o1f1"]
+script/source = "extends Control
+class_name NewsFeed
+
+@export var content: PageContent
+@export var zalgo_resource: ZalgoEffect
+@export var randomize_news_count: bool = true
+@export_range(3, 20, 1) var min_news: int = 3
+@export_range(3, 20, 1) var max_news: int = 12
+
+@onready var title_label = $Header/Title
+@onready var v_box_container: VBoxContainer = $ScrollContainer/VBoxContainer
+
+var _zalgo_applied: bool = false
+
+func _ready():
+	# Разрешаем получение фокуса
+	focus_mode = Control.FOCUS_ALL
+	grab_focus()
+	if content:
+		_load_content(content)
+	else:
+		var generator = ContentGenerator.new()
+		var generated = generator.generate_news(max_news)  # ← генерируем максимум
+		_load_content(generated)
+	
+	_apply_zalgo_from_resource()
+
+func _apply_zalgo_from_resource() -> void:
+	if zalgo_resource and not _zalgo_applied:
+		zalgo_resource.apply_to(self)
+		_zalgo_applied = true
+
+func _process(delta: float) -> void:
+	if zalgo_resource and _zalgo_applied:
+		zalgo_resource.update(delta)
+
+func _load_content(data: PageContent) -> void:
+	print(\"=== LOADING NEWS ===\")
+	print(\"Site title: \", data.site_title)
+	print(\"Total available news: \", data.news_items.size())
+	
+	# ДЕБАГ: Определяем тип сайта
+	var generator = ContentGenerator.new()
+	generator.debug_print_site_type(data)
+	
+	title_label.text = data.site_title if data.site_title != \"\" else \"Лента новостей\"
+	
+	for child in v_box_container.get_children():
+		child.queue_free()
+	
+	# Выбираем новости для отображения
+	var news_to_show = data.news_items.duplicate()
+	
+	if randomize_news_count and news_to_show.size() > 0:
+		news_to_show.shuffle()
+		var available = news_to_show.size()
+		var target_count = randi() % (max_news - min_news + 1) + min_news
+		var final_count = clamp(target_count, min_news, available)
+		news_to_show = news_to_show.slice(0, final_count)
+		print(\"Showing \", news_to_show.size(), \" news (randomized)\")
+	else:
+		print(\"Showing all \", news_to_show.size(), \" news\")
+	
+	for news in news_to_show:
+		var news_item = _create_news_item()
+		if news_item:
+			v_box_container.add_child(news_item)
+			await get_tree().process_frame
+			news_item.setup(news)
+	
+	if zalgo_resource and _zalgo_applied:
+		zalgo_resource.refresh_texts()
+		zalgo_resource._apply_to_all()
+
+func _create_news_item():
+	var news_scene = load(\"res://Objects/pages/new.tscn\")
+	if news_scene:
+		return news_scene.instantiate()
+	else:
+		print(\"Failed to load NewsItem.tscn\")
+		return null
+
+func update_content(new_content: PageContent) -> void:
+	content = new_content
+	_load_content(new_content)
+
+func set_zalgo_enabled(enabled: bool) -> void:
+	if zalgo_resource:
+		zalgo_resource.enabled = enabled
+		if enabled:
+			zalgo_resource.apply_to(self)
+		else:
+			zalgo_resource.remove()
+
+func set_zalgo_concentration(value: int) -> void:
+	if zalgo_resource:
+		zalgo_resource.set_concentration(value)
+
+func _gui_input(event: InputEvent):
+	# Логи для отладки
+	if event is InputEventMouseButton:
+		print(\"Click at: \", event.position)
+	elif event is InputEventMouseMotion:
+		print(\"Mouse move at: \", event.position)
+"
+
+[sub_resource type="Resource" id="Resource_mfrdi"]
+script = ExtResource("22_1u3im")
+enabled = false
+concentration = 0
+metadata/_custom_type_script = "uid://bcgaim0en2y45"
+
+[sub_resource type="PackedScene" id="PackedScene_qa6ul"]
+_bundled = {
+"conn_count": 0,
+"conns": PackedInt32Array(),
+"editable_instances": [],
+"id_paths": [PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array()],
+"names": PackedStringArray("News", "Control", "texture_filter", "layout_mode", "anchors_preset", "anchor_right", "anchor_bottom", "grow_horizontal", "grow_vertical", "theme", "script", "zalgo_resource", "Background", "TextureRect", "texture_filter", "layout_mode", "anchors_preset", "anchor_right", "anchor_bottom", "grow_horizontal", "grow_vertical", "texture", "stretch_mode", "Header", "Panel", "modulate", "layout_mode", "anchors_preset", "anchor_right", "offset_bottom", "grow_horizontal", "Title", "RichTextLabel", "layout_mode", "anchors_preset", "anchor_left", "anchor_top", "anchor_right", "anchor_bottom", "offset_left", "offset_top", "offset_right", "offset_bottom", "grow_horizontal", "grow_vertical", "theme_override_colors/default_color", "theme_override_font_sizes/normal_font_size", "text", "horizontal_alignment", "vertical_alignment", "ScrollContainer", "ScrollContainer", "modulate", "layout_mode", "anchors_preset", "anchor_left", "anchor_top", "anchor_right", "anchor_bottom", "offset_left", "offset_top", "offset_right", "offset_bottom", "grow_horizontal", "grow_vertical", "VBoxContainer", "VBoxContainer", "layout_mode", "size_flags_horizontal", "size_flags_vertical", "mouse_filter", "theme_override_constants/separation", "alignment", "Header2", "Panel", "modulate", "layout_mode", "anchors_preset", "anchor_top", "anchor_right", "anchor_bottom", "offset_top", "grow_horizontal", "grow_vertical", "BodyText", "RichTextLabel", "layout_mode", "anchors_preset", "anchor_left", "anchor_top", "anchor_right", "anchor_bottom", "offset_left", "offset_top", "offset_right", "offset_bottom", "grow_horizontal", "grow_vertical", "theme_override_colors/default_color", "theme_override_font_sizes/normal_font_size", "text", "horizontal_alignment", "vertical_alignment"),
+"node_count": 8,
+"node_ids": PackedInt32Array(289813588, 1325030262, 1982638670, 228684260, 15840137, 1727926049, 214358274, 841940358),
+"node_paths": [NodePath("."), NodePath("."), NodePath("./Header"), NodePath("."), NodePath("./ScrollContainer"), NodePath("."), NodePath("./Header2")],
+"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 10, 2, 0, 3, 1, 4, 2, 5, 3, 6, 4, 7, 5, 8, 6, 9, 7, 10, 8, 11, 9, 0, 1073741824, 0, 13, 12, -1, 9, 14, 10, 15, 11, 16, 12, 17, 13, 18, 14, 19, 15, 20, 16, 21, 17, 22, 18, 0, 1073741825, 0, 24, 23, -1, 6, 25, 19, 26, 20, 27, 21, 28, 22, 29, 23, 30, 24, 0, 1073741826, 0, 32, 31, -1, 17, 33, 25, 34, 26, 35, 27, 36, 28, 37, 29, 38, 30, 39, 31, 40, 32, 41, 33, 42, 34, 43, 35, 44, 36, 45, 37, 46, 38, 47, 39, 48, 40, 49, 41, 0, 1073741827, 0, 51, 50, -1, 13, 52, 42, 53, 43, 54, 44, 55, 45, 56, 46, 57, 47, 58, 48, 59, 49, 60, 50, 61, 51, 62, 52, 63, 53, 64, 54, 0, 1073741828, 0, 66, 65, -1, 6, 67, 55, 68, 56, 69, 57, 70, 58, 71, 59, 72, 60, 0, 1073741829, 0, 74, 73, -1, 9, 75, 61, 76, 62, 77, 63, 78, 64, 79, 65, 80, 66, 81, 67, 82, 68, 83, 69, 0, 1073741830, 0, 85, 84, -1, 17, 86, 70, 87, 71, 88, 72, 89, 73, 90, 74, 91, 75, 92, 76, 93, 77, 94, 78, 95, 79, 96, 80, 97, 81, 98, 82, 99, 83, 100, 84, 101, 85, 102, 86, 0),
+"variants": [1, 3, 15, 1.0, 1.0, 2, 2, ExtResource("21_qwlm0"), SubResource("GDScript_5o1f1"), SubResource("Resource_mfrdi"), 1, 1, 15, 1.0, 1.0, 2, 2, ExtResource("23_rnudo"), 1, Color(0.7137255, 0.8627451, 1, 1), 1, -1, 1.0, 188.0, 2, 1, 8, 0.5, 0.5, 0.5, 0.5, -192.0, -63.0, 192.0, 63.0, 2, 2, Color(0, 0, 0, 1), 48, "NEWS", 1, 1, Color(0.7137255, 0.8627451, 1, 1), 1, -1, 0.5, 0.5, 0.5, 0.5, -480.0, -311.0, 480.0, 314.0, 2, 2, 2, 4, 4, 0, 15, 1, Color(0.7137255, 0.8627451, 1, 1), 1, 12, 1.0, 1.0, 1.0, -188.0, 2, 0, 1, 8, 0.5, 0.5, 0.5, 0.5, -192.0, -63.0, 192.0, 63.0, 2, 2, Color(0, 0, 0, 1), 48, "NEWS", 1, 1],
+"version": 3
+}
+
 [sub_resource type="QuadMesh" id="QuadMesh_8d7l4"]
 flip_faces = true
 size = Vector2(4, 2)
@@ -1390,7 +1520,7 @@ viewport_size = Vector2(1024, 1024)
 
 [node name="Panel_Radar2" parent="." index="7" unique_id=322272534 instance=ExtResource("21_8d7l4")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.6683505, 1.857705, 6.0751386)
-ui_scene = ExtResource("21_a6ytt")
+ui_scene = SubResource("PackedScene_qa6ul")
 viewport_size = Vector2(1024, 1024)
 
 [node name="Window" type="MeshInstance3D" parent="." index="9" unique_id=905203185]
