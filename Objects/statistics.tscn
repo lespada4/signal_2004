@@ -1,0 +1,97 @@
+[gd_scene format=3 uid="uid://byudtr1crhfax"]
+
+[ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="1_86cfo"]
+[ext_resource type="Script" uid="uid://d13cj6jfmw84l" path="res://Scripts/stats.gd" id="2_70u1t"]
+
+[sub_resource type="Gradient" id="Gradient_lqvcu"]
+offsets = PackedFloat32Array(0.7213483, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_lqvcu"]
+noise_type = 2
+seed = 295
+frequency = 0.8241
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_s1u8v"]
+noise = SubResource("FastNoiseLite_lqvcu")
+color_ramp = SubResource("Gradient_lqvcu")
+seamless_blend_skirt = 0.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_lylaa"]
+font_size = 14
+font_color = Color(0.38928655, 0.38928664, 0.38928658, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_df4xg"]
+font_size = 24
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_2d0hh"]
+font_color = Color(1.7818713, 1.0702234e-05, 5.6142867e-06, 1)
+
+[node name="Control" type="Control" unique_id=459260761]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_86cfo")
+script = ExtResource("2_70u1t")
+
+[node name="Background" type="TextureRect" parent="." unique_id=276618862]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("NoiseTexture2D_s1u8v")
+
+[node name="Panel" type="Panel" parent="." unique_id=864460945]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -193.0
+offset_bottom = 177.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=553970437]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -190.0
+offset_top = -96.0
+offset_right = 190.0
+offset_bottom = 96.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 37
+
+[node name="DayLabel" type="Label" parent="Panel/VBoxContainer" unique_id=211219764]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_lylaa")
+
+[node name="DriveInfo" type="Label" parent="Panel/VBoxContainer" unique_id=2140256239]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_df4xg")
+
+[node name="ProgressLabel" type="Label" parent="Panel/VBoxContainer" unique_id=947056074]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_2d0hh")
+
+[node name="NormalLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1813635030]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_2d0hh")
+
+[node name="RareLabel" type="Label" parent="Panel/VBoxContainer" unique_id=402727541]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_2d0hh")
+
+[node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer" unique_id=768343255]
+layout_mode = 2

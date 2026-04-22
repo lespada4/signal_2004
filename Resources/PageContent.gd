@@ -9,7 +9,7 @@ class_name PageContent
 @export var site_title: String = ""
 @export var author: String = ""
 @export var date: String = ""
-
+@export var category: int = 0
 # =====================================================
 #  ИЗОБРАЖЕНИЯ
 # =====================================================
@@ -42,19 +42,19 @@ enum ContentType {
 # =====================================================
 
 func get_title() -> String:
-	return title if title != "" else "Без названия"
+	return title if title != "" else "Name cannot be found"
 
 func get_body() -> String:
-	return body if body != "" else "Нет содержимого"
+	return body if body != "" else "Not found"
 
 func get_site_title() -> String:
-	return site_title if site_title != "" else "Информационная панель"
+	return site_title if site_title != "" else "Info panel"
 
 func get_author() -> String:
-	return author if author != "" else "Автор не указан"
+	return author if author != "" else "Unnamed"
 
 func get_date() -> String:
-	return date if date != "" else "Дата не указана"
+	return date if date != "" else "No date"
 
 # =====================================================
 #  МЕТОДЫ ДЛЯ ИЗОБРАЖЕНИЙ

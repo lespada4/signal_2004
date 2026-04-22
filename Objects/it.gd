@@ -5,16 +5,33 @@ extends CharacterBody3D
 @export var kill_distance: float = 1.5
 @export var min_spawn_distance: float = 3.0
 @export var teleport_radius: float = 15.0
-@export var search_radius: float = 8.0  # Радиус для режима "ищет"
+@export var search_radius: float = 8.0
+@export var spawn_delay: float = 3.0  # Задержка перед началом атаки
+@export var audio_fade_duration: float = 2.0  # Длительность нарастания звука
+
+@onready var audio_stream_player_3d: AudioStreamPlayer3D = $AudioStreamPlayer3D
+
+# =====================================================
+#  ВЛИЯНИЕ НА РАССУДОК
+# =====================================================
+@export var sanity_drain_radius: float = 12.0
+@export var max_sanity_drain_rate: float = 15.0
+@export var visible_drain_multiplier: float = 3.0
+@export var attack_mode_multiplier: float = 1.5
 
 enum Behavior { SEARCH, ATTACK }
+enum SpawnState { SPAWNING, ACTIVE }
 var current_behavior: Behavior = Behavior.SEARCH
+var spawn_state: SpawnState = SpawnState.SPAWNING
 var behavior_timer: float = 0.0
-var behavior_duration: float = 5.0  # Длительность каждого поведения
+var behavior_duration: float = 5.0
+var spawn_timer: float = 0.0
 
 var player: Player
 var spawn_points: Array[Marker3D] = []
 var _timer: float = 0.0
+var _is_visible: bool = false
+var _audio_tween: Tween
 
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player")
@@ -23,21 +40,41 @@ func _ready() -> void:
 			spawn_points.append(node)
 	add_to_group("enemy")
 	
-	# Случайный выбор первого поведения
-	_switch_behavior()
+	# Начальное состояние - невидим и без звука
+	visible = false
+	spawn_timer = spawn_delay
+	
+	if audio_stream_player_3d:
+		audio_stream_player_3d.volume_db = -80.0
+		audio_stream_player_3d.play()
+	
+	print("[Enemy] Spawned, waiting ", spawn_delay, " seconds...")
 
 func _process(delta: float) -> void:
 	if not player:
 		return
 	
-	player.update_terror_radius(global_position)
+	# Обработка фазы появления
+	if spawn_state == SpawnState.SPAWNING:
+		spawn_timer -= delta
+		
+		# Плавно наращиваем звук
+		_update_spawn_audio()
+		
+		if spawn_timer <= 0.0:
+			_activate()
+		return
 	
-	# Смена поведения по таймеру
+	# Активная фаза
+	_is_visible = _is_visible_to_player()
+	player.update_terror_radius(global_position)
+	_update_sanity_drain(delta)
+	
 	behavior_timer += delta
 	if behavior_timer >= behavior_duration:
 		_switch_behavior()
 	
-	if _is_visible_to_player():
+	if _is_visible:
 		_timer = 0.0
 		return
 	
@@ -51,18 +88,65 @@ func _process(delta: float) -> void:
 	if global_position.distance_to(player.global_position) < kill_distance:
 		_on_player_contact()
 
+# =====================================================
+#  ФАЗА ПОЯВЛЕНИЯ
+# =====================================================
+
+func _update_spawn_audio() -> void:
+	if not audio_stream_player_3d:
+		return
+	
+	var progress = 1.0 - (spawn_timer / spawn_delay)
+	var target_volume = lerp(-80.0, -2.0, progress)
+	audio_stream_player_3d.volume_db = target_volume
+
+func _activate() -> void:
+	spawn_state = SpawnState.ACTIVE
+	visible = true
+	_switch_behavior()
+	
+	# Финальная громкость
+	if audio_stream_player_3d:
+		audio_stream_player_3d.volume_db = -2.0
+	
+	print("[Enemy] Activated! Now hunting...")
+
+# =====================================================
+#  ВЛИЯНИЕ НА РАССУДОК
+# =====================================================
+
+func _update_sanity_drain(delta: float) -> void:
+	var dist = global_position.distance_to(player.global_position)
+	
+	if dist > sanity_drain_radius:
+		return
+	
+	var distance_factor = 1.0 - (dist / sanity_drain_radius)
+	
+	var visibility_factor = 1.0
+	if _is_visible:
+		visibility_factor = visible_drain_multiplier
+	
+	var behavior_factor = 1.0
+	if current_behavior == Behavior.ATTACK:
+		behavior_factor = attack_mode_multiplier
+	
+	var drain_rate = max_sanity_drain_rate * distance_factor * visibility_factor * behavior_factor
+	
+	if player.has_method("drain_sanity"):
+		player.drain_sanity(drain_rate * delta)
+
 func _switch_behavior() -> void:
 	behavior_timer = 0.0
 	
-	# Чередуем поведения
 	if current_behavior == Behavior.SEARCH:
 		current_behavior = Behavior.ATTACK
 		behavior_duration = randf_range(4.0, 8.0)
-		print("Враг перешёл в режим АТАКИ")
+		print("[Enemy] Entered ATTACK mode")
 	else:
 		current_behavior = Behavior.SEARCH
 		behavior_duration = randf_range(3.0, 6.0)
-		print("Враг перешёл в режим ПОИСКА")
+		print("[Enemy] Entered SEARCH mode")
 
 func _get_teleport_point() -> Vector3:
 	match current_behavior:
@@ -73,7 +157,6 @@ func _get_teleport_point() -> Vector3:
 	return global_position
 
 func _get_search_point() -> Vector3:
-	"""Режим поиска: телепортируемся БЛИЖЕ к игроку"""
 	if spawn_points.is_empty():
 		return global_position
 	
@@ -83,7 +166,6 @@ func _get_search_point() -> Vector3:
 			continue
 		var dist_to_player = spot.global_position.distance_to(player.global_position)
 		
-		# Ищем точки в радиусе search_radius
 		if dist_to_player > search_radius:
 			continue
 		if dist_to_player < min_spawn_distance:
@@ -95,7 +177,6 @@ func _get_search_point() -> Vector3:
 		valid_spots.append(spot)
 	
 	if valid_spots.is_empty():
-		# Если нет точек в радиусе, ищем любую подходящую
 		for spot in spawn_points:
 			if not spot:
 				continue
@@ -111,17 +192,14 @@ func _get_search_point() -> Vector3:
 	if valid_spots.is_empty():
 		return global_position
 	
-	# Сортируем по близости к игроку (чем ближе, тем лучше)
 	valid_spots.sort_custom(func(a, b):
 		return a.global_position.distance_to(player.global_position) < \
 			   b.global_position.distance_to(player.global_position)
 	)
 	
-	# Берём самую близкую
 	return valid_spots[0].global_position
 
 func _get_attack_point() -> Vector3:
-	"""Режим атаки: телепортируемся ЗА СПИНУ игроку"""
 	if spawn_points.is_empty():
 		return global_position
 	
@@ -144,18 +222,15 @@ func _get_attack_point() -> Vector3:
 		if _is_point_visible(spot.global_position):
 			continue
 		
-		# Проверяем, насколько точка за спиной
 		var to_spot = (spot.global_position - player_pos).normalized()
 		var behind_score = (1.0 - to_spot.dot(cam_forward)) / 2.0
 		
-		# Только точки за спиной (score > 0.6)
 		if behind_score > 0.6:
 			valid_spots.append(spot)
 	
 	if valid_spots.is_empty():
-		return _get_search_point()  # fallback
+		return _get_search_point()
 	
-	# Сортируем по углу за спиной (чем больше, тем лучше)
 	valid_spots.sort_custom(func(a, b):
 		var to_a = (a.global_position - player_pos).normalized()
 		var to_b = (b.global_position - player_pos).normalized()
@@ -193,7 +268,7 @@ func _is_point_visible(pos: Vector3) -> bool:
 	return space.intersect_ray(query).is_empty()
 
 func _on_player_contact() -> void:
-	var new_pos = _get_search_point()  # При контакте — паника, уходим в поиск
+	var new_pos = _get_search_point()
 	if new_pos != global_position:
 		global_position = new_pos
 		_timer = 0.0

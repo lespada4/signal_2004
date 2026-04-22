@@ -72,11 +72,16 @@ signal level_completed(level_id: int, reward: String)
 #  LIFECYCLE
 # =====================================================
 func _ready() -> void:
-	# Ждём один кадр чтобы размеры применились
 	await get_tree().process_frame
-	_load_random_level()
 	
-	# Принудительно перерисовываем при изменении размера
+	# Проверяем, можно ли играть
+	if FlashDriveManager and not FlashDriveManager.can_collect_flash_drive():
+		# Если сайт загружен — сбрасываем его
+		if FlashDriveManager.is_site_loaded():
+			FlashDriveManager.reset_for_new_flash_drive()
+			print("[WaveTuner] Reset: cleared loaded site")
+	
+	_load_random_level()
 	resized.connect(_on_control_resize)
 
 func _on_control_resize() -> void:
@@ -163,18 +168,17 @@ func _load_random_level() -> void:
 	_draw_lines()
 
 func _give_reward(reward_type: String) -> void:
+	if FlashDriveManager:
+		var success = FlashDriveManager.collect_flash_drive(reward_type)
+		if success:
+			print("[WaveTuner] Flash drive collected!")
+		else:
+			print("[WaveTuner] Cannot collect flash drive!")
+	
 	match reward_type:
-		"blue":
-			print("🎁 ПОЛУЧЕНА СИНЯЯ ФЛЕШКА!")
-			print("   Сайт: weather.gov")
-		"red":
-			print("🎁 ПОЛУЧЕНА КРАСНАЯ ФЛЕШКА!")
-			print("   Сайт: enemy-database.local")
-		"green":
-			print("🎁 ПОЛУЧЕНА ЗЕЛЁНАЯ ФЛЕШКА!")
-			print("   Сайт: survivor-network.onion")
-		_:
-			print("🎁 ПОЛУЧЕНА НЕИЗВЕСТНАЯ ФЛЕШКА!")
+		"blue": print("🎁 ПОЛУЧЕНА СИНЯЯ ФЛЕШКА!")
+		"red": print("🎁 ПОЛУЧЕНА КРАСНАЯ ФЛЕШКА!")
+		"green": print("🎁 ПОЛУЧЕНА ЗЕЛЁНАЯ ФЛЕШКА!")
 
 func _on_level_completed() -> void:
 	var reward = current_preset["reward"]

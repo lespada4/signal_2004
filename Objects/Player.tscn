@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dfxguass7dwj" path="res://Scripts/Player.gd" id="1_8r7yd"]
 [ext_resource type="Shader" uid="uid://bbf4xgucu6u05" path="res://Shader/PSXPost.gdshader" id="2_n6db0"]
-[ext_resource type="AudioStream" uid="uid://b28772p7a0hhm" path="res://Audio/36. 46415 Jobro Dramatic-Piano-2 (mp3cut.net).mp3" id="3_yk4ok"]
-[ext_resource type="Shader" uid="uid://drxa5cym3je7u" path="res://Objects/Sanity.gdshader" id="4_gijnf"]
+[ext_resource type="Texture2D" uid="uid://b16cgdl74t1o5" path="res://Web images/sus/Abstract_Noise_026-256x256.png" id="3_u60sl"]
+[ext_resource type="Shader" uid="uid://brhootcg454j6" path="res://Shader/pixeliz.gdshader" id="5_u60sl"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n6db0"]
 radius = 0.37
@@ -16,22 +16,48 @@ render_priority = 0
 shader = ExtResource("2_n6db0")
 shader_parameter/enable_fog = true
 shader_parameter/fog_color = Color(0, 0, 0, 1)
-shader_parameter/noise_color = Color(0.86898494, 0.8689849, 0.8689849, 1)
-shader_parameter/fog_distance = 13.00000057
-shader_parameter/fog_fade_range = 10.0000004275
+shader_parameter/noise_color = Color(0, 0, 0, 1)
+shader_parameter/fog_distance = 13.50000059375
+shader_parameter/fog_fade_range = 6.0000002375
 shader_parameter/enable_noise = false
 shader_parameter/noise_time_fac = 0.10000000149012
-shader_parameter/enable_color_limitation = true
-shader_parameter/color_levels = 32
-shader_parameter/enable_dithering = false
-shader_parameter/dither_strength = 1.0
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_8r7yd"]
 radius = 0.1
 
+[sub_resource type="BoxMesh" id="BoxMesh_gijnf"]
+size = Vector3(0.06, 0.17, 0.03)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u60sl"]
+albedo_color = Color(0.7708395, 0.77083945, 0.77083945, 1)
+albedo_texture = ExtResource("3_u60sl")
+metallic = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gijnf"]
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 13.94
+billboard_mode = 1
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_u60sl"]
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_u60sl"]
-shader = ExtResource("4_gijnf")
-shader_parameter/fish_intensity = 0.30000001425
+shader = ExtResource("5_u60sl")
+shader_parameter/exposure = 1.0
+shader_parameter/contrast = 1.05
+shader_parameter/saturation = 0.9
+shader_parameter/enable_pixelate = true
+shader_parameter/pixel_factor = 1.00000002375
+shader_parameter/enable_posterize = true
+shader_parameter/color_levels = 24.000001045
+shader_parameter/dither_strength = 0.0
+shader_parameter/chrom_aberration = 0.07
+shader_parameter/vignette_strength = 1.0
+shader_parameter/grain_strength = 0.2
+shader_parameter/enable_tint = true
+shader_parameter/tint_color = Vector3(1, 1, 1.2)
+shader_parameter/tint_strength = 0.15
+shader_parameter/viewport_size_override = Vector2(640, 320)
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_gijnf"]
 
@@ -64,13 +90,30 @@ surface_material_override/0 = SubResource("ShaderMaterial_yk4ok")
 shape = SubResource("SphereShape3D_8r7yd")
 target_position = Vector3(0, 0, -2)
 collision_mask = 2
+collide_with_areas = true
+
+[node name="Drive" type="MeshInstance3D" parent="Campivot/Camera3D" unique_id=1626681849]
+transform = Transform3D(1, 0, 0, 0, 0.80759895, 0.5897321, 0, -0.5897321, 0.80759895, 0.21536297, -0.12977195, -0.34028718)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_gijnf")
+surface_material_override/0 = SubResource("StandardMaterial3D_u60sl")
+
+[node name="LED" type="Sprite3D" parent="Campivot/Camera3D/Drive" unique_id=1162840138]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.016412377, 0.02485609)
+material_override = SubResource("StandardMaterial3D_gijnf")
+cast_shadow = 0
+pixel_size = 0.025
+billboard = 1
+no_depth_test = true
+texture_filter = 0
+render_priority = 1
+texture = SubResource("CanvasTexture_u60sl")
 
 [node name="InteractionRay" type="RayCast3D" parent="Campivot" unique_id=111618508]
 target_position = Vector3(0, 0, -2)
 collision_mask = 2
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=630933733]
-stream = ExtResource("3_yk4ok")
 volume_db = -9.454
 pitch_scale = 0.2
 

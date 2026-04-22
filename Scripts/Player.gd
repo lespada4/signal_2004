@@ -1,6 +1,20 @@
 extends CharacterBody3D
 class_name Player
 
+## ITEMS (DRIVE AND LED)
+
+@onready var drive: MeshInstance3D = $Campivot/Camera3D/Drive
+@onready var led: Sprite3D = $Campivot/Camera3D/Drive/LED
+@onready var sanity_bar: ProgressBar = $"../UI/SanityBar"
+
+# Цвета для LED в зависимости от категории сайта
+const LED_COLORS = {
+	"normal": Color(0.0, 0.5, 1.0),     # Синий
+	"suspicious": Color(1.0, 1.0, 0.0), # Жёлтый
+	"dangerous": Color(1.0, 0.0, 0.0),  # Красный
+	"none": Color(0.2, 0.2, 0.2)        # Тёмный (выключен)
+}
+
 # =================== Звук врага ===================
 @export var max_hear_distance: float = 20.0
 @onready var terror_radius: AudioStreamPlayer = $AudioStreamPlayer
@@ -9,7 +23,7 @@ class_name Player
 # =================== Движение ===================
 @export_group("Movement")
 @export var walk_speed: float = 4.0
-@export var slow_walk_speed: float = 1.5  # Скорость медленного хождения
+@export var slow_walk_speed: float = 1.5
 @export var mouse_sensitivity: float = 0.004
 @export var gravity: float = 18.0
 
@@ -64,15 +78,107 @@ func _ready() -> void:
 	_target_h_rotation = rotation.y
 	_target_v_rotation = camera.rotation.x
 	sanity_updated.emit(current_sanity, max_sanity)
+	
+	# Инициализируем полоску рассудка
+	if sanity_bar:
+		sanity_bar.max_value = max_sanity
+		sanity_bar.value = current_sanity
+	
+	# Подключаемся к сигналам FlashDriveManager
+	if FlashDriveManager:
+		FlashDriveManager.flash_drive_collected.connect(_on_flash_drive_collected)
+		FlashDriveManager.flash_drive_inserted.connect(_on_flash_drive_inserted)
+		FlashDriveManager.flash_drive_ejected.connect(_on_flash_drive_ejected)
+		FlashDriveManager.flash_drive_consumed.connect(_on_flash_drive_consumed)
+	
+	# Подключаем собственный сигнал sanity_updated к обновлению бара
+	sanity_updated.connect(_on_sanity_updated)
+	
+	# Флешка скрыта по умолчанию
+	_hide_drive()
+
+# =====================================================
+#  SANITY BAR
+# =====================================================
+
+func _on_sanity_updated(current: float, max_val: float) -> void:
+	if sanity_bar:
+		sanity_bar.max_value = max_val
+		sanity_bar.value = current
+		
+		# Меняем цвет в зависимости от уровня
+		var t = current / max_val
+		if t > 0.5:
+			sanity_bar.modulate = Color.GREEN
+		elif t > 0.25:
+			sanity_bar.modulate = Color.YELLOW
+		else:
+			sanity_bar.modulate = Color.RED
+
+# =====================================================
+#  FLASH DRIVE VISUALS
+# =====================================================
+
+func _show_drive() -> void:
+	drive.visible = true
+	led.visible = true
+	print("[Player] Flash drive shown")
+
+func _hide_drive() -> void:
+	drive.visible = false
+	led.visible = false
+	print("[Player] Flash drive hidden")
+
+func _set_led_color(color_key: String) -> void:
+	print("[Player] Setting LED color to: ", color_key)
+	
+	var color = LED_COLORS.get(color_key, LED_COLORS["none"])
+	
+	if not led:
+		print("[Player] ERROR: LED not found!")
+		return
+	
+	var material: StandardMaterial3D
+	
+	if led.material_override:
+		material = led.material_override
+	else:
+		material = StandardMaterial3D.new()
+		led.material_override = material
+	
+	material.emission_enabled = true
+	material.emission = color
+	material.emission_energy_multiplier = 13.0
+	material.albedo_color = color
+
+func _on_flash_drive_collected(color: String) -> void:
+	print("[Player] Flash drive collected: ", color)
+	_show_drive()
+	
+	match color:
+		"blue": _set_led_color("normal")
+		"red": _set_led_color("suspicious")
+		"green": _set_led_color("dangerous")
+		_: _set_led_color("none")
+
+func _on_flash_drive_inserted(site: PageContent) -> void:
+	print("[Player] Flash drive inserted into terminal")
+	_hide_drive()
+
+func _on_flash_drive_ejected() -> void:
+	print("[Player] Flash drive ejected")
+	_hide_drive()
+	_set_led_color("none")
+
+func _on_flash_drive_consumed() -> void:
+	print("[Player] Flash drive consumed")
+	_hide_drive()
+	_set_led_color("none")
 
 # =================== Инпут ===================
 func _unhandled_input(event: InputEvent) -> void:
 	if controls_locked:
 		return
-
-	# УБИРАЕМ ЭТОТ БЛОК:
-	# if event is InputEventMouseButton and event.pressed:
-	#     Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 	if event.is_action_pressed("ui_cancel"):
 		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
@@ -90,6 +196,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event.is_action_pressed("interact"):
 		_try_interact()
+
 # =================== Процесс ===================
 func _process(delta: float) -> void:
 	if controls_locked:
@@ -116,7 +223,6 @@ func _physics_process(delta: float) -> void:
 		if wish_dir.length() > 1.0:
 			wish_dir = wish_dir.normalized()
 
-		# Выбор скорости: медленная если зажат "Walk", иначе обычная
 		var current_walk_speed = slow_walk_speed if Input.is_action_pressed("walk") else walk_speed
 		velocity.x = wish_dir.x * current_walk_speed
 		velocity.z = wish_dir.z * current_walk_speed
@@ -215,6 +321,8 @@ func _try_interact() -> void:
 		return
 
 	var collider = result[0]["collider"]
+	
+	# Поддержка и StaticBody3D (терминалы) и Area3D (зона восстановления)
 	if collider.has_method("interact"):
 		collider.interact()
 
@@ -275,3 +383,9 @@ func update_terror_radius(enemy_pos: Vector3) -> void:
 		terror_radius.play()
 	elif t <= 0.0 and terror_radius.playing:
 		terror_radius.stop()
+		
+
+func drain_sanity(amount: float) -> void:
+	current_sanity = max(current_sanity - amount, 0.0)
+	_sanity_regen_timer = sanity_regen_delay
+	sanity_updated.emit(current_sanity, max_sanity)

@@ -30,7 +30,9 @@ size = Vector3(1, 1, 0.062561035)
 collision_layer = 3
 collision_mask = 4
 script = ExtResource("1_0dn25")
+viewport_size = Vector2(1024, 1024)
 monitor_camera = NodePath("Camera3D")
+fade_duration = 0.1
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1683690284]
 mesh = SubResource("BoxMesh_21qmg")

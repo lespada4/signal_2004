@@ -1,15 +1,38 @@
 [gd_scene format=3 uid="uid://cu5ieb08ui7ht"]
 
 [ext_resource type="Script" uid="uid://cahrl7qs2cur1" path="res://Objects/it.gd" id="1_gx6kv"]
+[ext_resource type="Shader" uid="uid://dvnle7x74nf7o" path="res://Objects/it.gdshader" id="2_quvie"]
+[ext_resource type="AudioStream" uid="uid://bs3yroxkurf3k" path="res://Audio/mod2_1_.mp3" id="3_tjfnh"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gx6kv"]
-albedo_color = Color(0, 0, 0, 1)
-billboard_mode = 1
+[sub_resource type="Gradient" id="Gradient_tjfnh"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.19871795, 0.69871795, 0.8397436, 0.974359)
+colors = PackedColorArray(0.7537708, 2.6809137e-06, 6.078898e-07, 1, 0, 0, 0, 1, 0.17248194, 3.6423853e-07, 6.75446e-08, 1, 0.58584684, 1.4439225e-06, 2.8878452e-07, 1, 0.8564939, 3.657937e-06, 8.663535e-07, 1)
 
-[sub_resource type="SphereMesh" id="SphereMesh_quvie"]
-material = SubResource("StandardMaterial3D_gx6kv")
-radial_segments = 9
-rings = 6
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_lce64"]
+frequency = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_d7re7"]
+width = 32
+height = 32
+noise = SubResource("FastNoiseLite_lce64")
+color_ramp = SubResource("Gradient_tjfnh")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_03eoa"]
+render_priority = 2
+shader = ExtResource("2_quvie")
+shader_parameter/shake_power = 0.78
+shader_parameter/shake_rate = 1.0
+shader_parameter/shake_speed = 12.0
+shader_parameter/shake_block_size = 128.0
+shader_parameter/shake_color_rate = 1.0
+shader_parameter/main_tex = SubResource("NoiseTexture2D_d7re7")
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ovwpe"]
+material = SubResource("ShaderMaterial_03eoa")
+radius = 1.2
+height = 5.43
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_quvie"]
 
@@ -19,12 +42,24 @@ collision_mask = 4
 script = ExtResource("1_gx6kv")
 teleport_interval = 1.0
 min_spawn_distance = 5.0
+sanity_drain_radius = 6.0
+max_sanity_drain_rate = 5.0
+visible_drain_multiplier = 5.0
+attack_mode_multiplier = 3.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=734257204]
 cast_shadow = 0
-mesh = SubResource("SphereMesh_quvie")
+mesh = SubResource("CapsuleMesh_ovwpe")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2638710]
 shape = SubResource("CapsuleShape3D_quvie")
 
 [node name="Timer" type="Timer" parent="." unique_id=349028132]
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=1915774318]
+stream = ExtResource("3_tjfnh")
+volume_db = -2.0
+pitch_scale = 0.44
+autoplay = true
+max_distance = 1024.0
+panning_strength = 0.0

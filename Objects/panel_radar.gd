@@ -1,7 +1,16 @@
 extends StaticBody3D
-class_name Monitor
+class_name BrowserTerminal
 
-@export var ui_scene: PackedScene
+enum TerminalMode {
+	GAME,           # Мини-игра (WaveTuner)
+	FLASH_DRIVE,    # Приём флешек
+	STATS           # Статистика дня
+}
+
+@export var mode: TerminalMode = TerminalMode.FLASH_DRIVE
+@export var ui_scene: PackedScene          # ArticlePage или WaveTuner
+@export var no_flash_drive_scene: PackedScene  # NoFlashDriveScene
+@export var stats_scene: PackedScene       # StatsScene
 @export var viewport_size: Vector2 = Vector2(1920, 1080)
 @export var monitor_camera: Camera3D
 @export var exit_key: Key = KEY_ESCAPE
@@ -19,7 +28,6 @@ var mesh_size: Vector2
 var plane: Plane
 var last_viewport_pos: Vector2 = Vector2.ZERO
 
-var ui_initialized: bool = false
 var fade_overlay: ColorRect
 var fade_tween: Tween
 var is_screen_on: bool = false
@@ -32,6 +40,11 @@ func _ready():
 	
 	self.input_event.connect(_on_input_event)
 	_update_plane()
+	
+	# Подключаем сигналы только для режима флешек
+	if mode == TerminalMode.FLASH_DRIVE and FlashDriveManager:
+		FlashDriveManager.flash_drive_inserted.connect(_on_flash_drive_inserted)
+		FlashDriveManager.flash_drive_ejected.connect(_on_flash_drive_ejected)
 
 func _setup_mesh_size():
 	if screen_mesh.mesh is PlaneMesh or screen_mesh.mesh is QuadMesh:
@@ -64,20 +77,6 @@ func _setup_viewport():
 	viewport.gui_embed_subwindows = true
 	viewport.size_2d_override = viewport_size
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-
-func _setup_ui():
-	if not ui_scene:
-		return
-	
-	if not ui_initialized:
-		ui_instance = ui_scene.instantiate()
-		viewport.add_child(ui_instance)
-		
-		if ui_instance is Control:
-			ui_instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		
-		viewport.move_child(fade_overlay, viewport.get_child_count())
-		ui_initialized = true
 
 func _process(_delta):
 	if not is_active:
@@ -114,9 +113,23 @@ func _input(event):
 		return
 	
 	if event is InputEventKey and event.keycode == exit_key and event.pressed:
-		exit_monitor_mode()
+		exit_terminal()
+	elif mode == TerminalMode.FLASH_DRIVE and event.is_action_pressed("insert_flash_drive"):
+		_try_insert_flash_drive()
 	elif event is InputEventMouseButton:
 		_handle_mouse_button(event)
+
+func _try_insert_flash_drive() -> void:
+	if mode != TerminalMode.FLASH_DRIVE:
+		return
+	
+	if not FlashDriveManager:
+		return
+	
+	if FlashDriveManager.has_active_flash_drive():
+		FlashDriveManager.insert_latest_flash_drive()
+	else:
+		print("[BrowserTerminal] No flash drive to insert")
 
 func _handle_mouse_button(event: InputEventMouseButton):
 	var screen_pos = get_viewport().get_mouse_position()
@@ -140,6 +153,10 @@ func _handle_mouse_button(event: InputEventMouseButton):
 	last_viewport_pos = viewport_pos
 	viewport.push_input(new_event)
 
+func _on_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int):
+	if not is_active and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		activate_terminal(_camera)
+
 func _world_to_viewport(world_pos: Vector3) -> Vector2:
 	var local_pos = screen_mesh.global_transform.affine_inverse() * world_pos
 	
@@ -149,10 +166,6 @@ func _world_to_viewport(world_pos: Vector3) -> Vector2:
 	)
 	
 	return Vector2(uv.x * viewport.size.x, uv.y * viewport.size.y)
-
-func _on_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int):
-	if not is_active and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		activate_monitor_mode(_camera)
 
 func _fade_to_black():
 	if fade_tween and fade_tween.is_running():
@@ -172,14 +185,88 @@ func _fade_to_clear():
 	fade_tween.tween_property(fade_overlay, "modulate", Color(0, 0, 0, 0), fade_duration)
 	is_screen_on = true
 
-func activate_monitor_mode(camera: Node):
+func _clear_viewport():
+	for child in viewport.get_children():
+		if child != fade_overlay:
+			child.queue_free()
+
+func _load_scene(scene: PackedScene) -> Control:
+	if not scene:
+		return null
+	
+	var instance = scene.instantiate()
+	viewport.add_child(instance)
+	
+	if instance is Control:
+		instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	
+	viewport.move_child(fade_overlay, viewport.get_child_count())
+	
+	return instance
+
+func _load_site(site: PageContent):
+	_clear_viewport()
+	ui_instance = _load_scene(ui_scene)
+	
+	if not ui_instance:
+		return
+	
+	if ui_instance.has_method("update_content"):
+		ui_instance.update_content(site)
+	elif ui_instance.has_method("_apply_content"):
+		ui_instance._apply_content(site)
+	elif ui_instance.get("content") != null:
+		ui_instance.content = site
+	
+	if FlashDriveManager:
+		FlashDriveManager.confirm_site_loaded()
+
+func _on_flash_drive_inserted(site: PageContent):
+	if is_active and mode == TerminalMode.FLASH_DRIVE:
+		_load_site(site)
+		_fade_to_clear()
+
+func _on_flash_drive_ejected():
+	if is_active and mode == TerminalMode.FLASH_DRIVE:
+		_clear_viewport()
+		ui_instance = _load_scene(no_flash_drive_scene)
+
+func activate_terminal(camera: Node):
 	if camera is Camera3D:
 		player_camera = camera
 	
-	_setup_ui()
-	
-	if ui_instance and ui_instance.has_method("activate"):
-		ui_instance.activate()
+	match mode:
+		TerminalMode.GAME:
+			_clear_viewport()
+			ui_instance = _load_scene(ui_scene)
+			if ui_instance and ui_instance.has_method("activate"):
+				ui_instance.activate()
+				
+		TerminalMode.STATS:
+			_clear_viewport()
+			ui_instance = _load_scene(stats_scene)
+			if ui_instance and ui_instance.has_method("refresh"):
+				ui_instance.refresh()
+				
+		TerminalMode.FLASH_DRIVE:
+			if FlashDriveManager and FlashDriveManager.get_current_site():
+				_load_site(FlashDriveManager.get_current_site())
+			elif FlashDriveManager and FlashDriveManager.has_active_flash_drive():
+				_clear_viewport()
+				ui_instance = _load_scene(no_flash_drive_scene)
+				
+				if ui_instance and ui_instance.has_method("update_drive"):
+					var color = FlashDriveManager.get_current_flash_drive_color()
+					var temp_site = PageContent.new()
+					match color:
+						"blue": temp_site.category = ContentGenerator.SiteCategory.NORMAL
+						"red": temp_site.category = ContentGenerator.SiteCategory.SUSPICIOUS
+						"green": temp_site.category = ContentGenerator.SiteCategory.DANGEROUS
+					temp_site.title = color.capitalize() + " Flash Drive"
+					ui_instance.update_drive(temp_site)
+			else:
+				_clear_viewport()
+				ui_instance = _load_scene(no_flash_drive_scene)
 	
 	if player.has_method("set_shader_visible"):
 		player.set_shader_visible(false)
@@ -200,7 +287,7 @@ func activate_monitor_mode(camera: Node):
 	
 	_fade_to_clear()
 
-func exit_monitor_mode():
+func exit_terminal():
 	if not is_active:
 		return
 	
@@ -234,8 +321,8 @@ func _switch_camera(to_camera: Camera3D):
 	
 	to_camera.current = true
 
-func close_terminal():
-	exit_monitor_mode()
-
 func interact():
-	activate_monitor_mode(player.camera)
+	activate_terminal(player.camera)
+
+func close_terminal():
+	exit_terminal()

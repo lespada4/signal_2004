@@ -20,16 +20,21 @@ func _process(delta: float) -> void:
 func refresh_zalgo() -> void:
 	if zalgo_resource and _zalgo_applied:
 		zalgo_resource.refresh_texts()
-		zalgo_resource._apply_to_all()
 
 func set_zalgo_enabled(enabled: bool) -> void:
 	if zalgo_resource:
 		zalgo_resource.enabled = enabled
-		if enabled:
+		if enabled and not _zalgo_applied:
 			zalgo_resource.apply_to(self)
-		else:
-			zalgo_resource.remove()
+			_zalgo_applied = true
+		elif not enabled:
+			# Не удаляем эффект, просто перестаём обновлять
+			pass
 
 func set_zalgo_concentration(value: int) -> void:
 	if zalgo_resource:
 		zalgo_resource.set_concentration(value)
+		# Принудительно применяем с новой концентрацией
+		if zalgo_resource.enabled:
+			zalgo_resource.refresh_texts()
+			zalgo_resource._apply_to_all()
