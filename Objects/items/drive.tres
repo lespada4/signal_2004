@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DiskItem" format=3 uid="uid://dmvgptqyjsii"]
+
+[ext_resource type="Texture2D" uid="uid://cpm7x28okvv36" path="res://Textures/YFloor_32.png" id="1_n4oxg"]
+[ext_resource type="PackedScene" uid="uid://dgrswv6l3u7ii" path="res://Objects/items/disk_drive.tscn" id="2_d3srt"]
+[ext_resource type="Script" uid="uid://brce6dqd27vme" path="res://Objects/items/drive_scr.gd" id="3_wvwci"]
+
+[resource]
+script = ExtResource("3_wvwci")
+icon = ExtResource("1_n4oxg")
+scene = ExtResource("2_d3srt")

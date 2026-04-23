@@ -15,8 +15,8 @@ func _ready() -> void:
 	insert_button.pressed.connect(_on_insert_pressed)
 	
 	# Проверяем флешку
-	if FlashDriveManager:
-		var site = FlashDriveManager.get_current_site()
+	if DiskManager:
+		var site = DiskManager.get_current_site()
 		if site:
 			current_site = site
 			_update_for_site(site)
@@ -91,9 +91,9 @@ func _on_insert_pressed() -> void:
 		return
 	
 	# Вставка
-	if FlashDriveManager:
-		FlashDriveManager.confirm_insertion()
-		FlashDriveManager.flash_drive_inserted.emit(current_site)
+	if DiskManager:
+		DiskManager.confirm_insertion()
+		DiskManager.flash_drive_inserted.emit(current_site)
 
 func update_drive(site: PageContent) -> void:
 	current_site = site

@@ -3,7 +3,7 @@ class_name BrowserTerminal
 
 enum TerminalMode {
 	GAME,           # Мини-игра (WaveTuner)
-	FLASH_DRIVE,    # Приём флешек
+	FLASH_DRIVE,    # Приём дисков
 	STATS           # Статистика дня
 }
 
@@ -31,6 +31,7 @@ var last_viewport_pos: Vector2 = Vector2.ZERO
 var fade_overlay: ColorRect
 var fade_tween: Tween
 var is_screen_on: bool = false
+var _disabled: bool = false
 
 func _ready():
 	_setup_mesh_size()
@@ -41,10 +42,9 @@ func _ready():
 	self.input_event.connect(_on_input_event)
 	_update_plane()
 	
-	# Подключаем сигналы только для режима флешек
-	if mode == TerminalMode.FLASH_DRIVE and FlashDriveManager:
-		FlashDriveManager.flash_drive_inserted.connect(_on_flash_drive_inserted)
-		FlashDriveManager.flash_drive_ejected.connect(_on_flash_drive_ejected)
+	# Подключаем сигналы только для режима дисков
+	if mode == TerminalMode.FLASH_DRIVE and DiskManager:
+		DiskManager.disk_inserted.connect(_on_disk_inserted)
 
 func _setup_mesh_size():
 	if screen_mesh.mesh is PlaneMesh or screen_mesh.mesh is QuadMesh:
@@ -114,22 +114,8 @@ func _input(event):
 	
 	if event is InputEventKey and event.keycode == exit_key and event.pressed:
 		exit_terminal()
-	elif mode == TerminalMode.FLASH_DRIVE and event.is_action_pressed("insert_flash_drive"):
-		_try_insert_flash_drive()
 	elif event is InputEventMouseButton:
 		_handle_mouse_button(event)
-
-func _try_insert_flash_drive() -> void:
-	if mode != TerminalMode.FLASH_DRIVE:
-		return
-	
-	if not FlashDriveManager:
-		return
-	
-	if FlashDriveManager.has_active_flash_drive():
-		FlashDriveManager.insert_latest_flash_drive()
-	else:
-		print("[BrowserTerminal] No flash drive to insert")
 
 func _handle_mouse_button(event: InputEventMouseButton):
 	var screen_pos = get_viewport().get_mouse_position()
@@ -154,6 +140,8 @@ func _handle_mouse_button(event: InputEventMouseButton):
 	viewport.push_input(new_event)
 
 func _on_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int):
+	if _disabled:
+		return
 	if not is_active and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		activate_terminal(_camera)
 
@@ -204,6 +192,13 @@ func _load_scene(scene: PackedScene) -> Control:
 	
 	return instance
 
+func _load_default_ui():
+	_clear_viewport()
+	ui_instance = _load_scene(ui_scene)
+	
+	if ui_instance and ui_instance.has_method("activate"):
+		ui_instance.activate()
+
 func _load_site(site: PageContent):
 	_clear_viewport()
 	ui_instance = _load_scene(ui_scene)
@@ -218,20 +213,19 @@ func _load_site(site: PageContent):
 	elif ui_instance.get("content") != null:
 		ui_instance.content = site
 	
-	if FlashDriveManager:
-		FlashDriveManager.confirm_site_loaded()
+	if DiskManager:
+		DiskManager.confirm_site_loaded()
+		print("[BrowserTerminal] Site confirmed loaded")
 
-func _on_flash_drive_inserted(site: PageContent):
+func _on_disk_inserted(site: PageContent):
 	if is_active and mode == TerminalMode.FLASH_DRIVE:
 		_load_site(site)
 		_fade_to_clear()
 
-func _on_flash_drive_ejected():
-	if is_active and mode == TerminalMode.FLASH_DRIVE:
-		_clear_viewport()
-		ui_instance = _load_scene(no_flash_drive_scene)
-
 func activate_terminal(camera: Node):
+	if _disabled:
+		return
+		
 	if camera is Camera3D:
 		player_camera = camera
 	
@@ -249,21 +243,11 @@ func activate_terminal(camera: Node):
 				ui_instance.refresh()
 				
 		TerminalMode.FLASH_DRIVE:
-			if FlashDriveManager and FlashDriveManager.get_current_site():
-				_load_site(FlashDriveManager.get_current_site())
-			elif FlashDriveManager and FlashDriveManager.has_active_flash_drive():
-				_clear_viewport()
-				ui_instance = _load_scene(no_flash_drive_scene)
-				
-				if ui_instance and ui_instance.has_method("update_drive"):
-					var color = FlashDriveManager.get_current_flash_drive_color()
-					var temp_site = PageContent.new()
-					match color:
-						"blue": temp_site.category = ContentGenerator.SiteCategory.NORMAL
-						"red": temp_site.category = ContentGenerator.SiteCategory.SUSPICIOUS
-						"green": temp_site.category = ContentGenerator.SiteCategory.DANGEROUS
-					temp_site.title = color.capitalize() + " Flash Drive"
-					ui_instance.update_drive(temp_site)
+			if DiskManager and DiskManager.get_current_site():
+				_load_site(DiskManager.get_current_site())
+			elif DiskManager and DiskManager.has_disk_inserted():
+				# Диск вставлен, но сайт ещё не сгенерирован? Ждём сигнала
+				pass
 			else:
 				_clear_viewport()
 				ui_instance = _load_scene(no_flash_drive_scene)
@@ -321,7 +305,14 @@ func _switch_camera(to_camera: Camera3D):
 	
 	to_camera.current = true
 
+func set_disabled(disabled: bool) -> void:
+	_disabled = disabled
+	if disabled and is_active:
+		exit_terminal()
+
 func interact():
+	if _disabled:
+		return
 	activate_terminal(player.camera)
 
 func close_terminal():

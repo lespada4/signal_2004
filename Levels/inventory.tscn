@@ -1,0 +1,176 @@
+[gd_scene format=3 uid="uid://cqgj1raeun64"]
+
+[ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Assets/Theme/Themes/Classic95/Classic95.tres" id="1_cytey"]
+[ext_resource type="Script" uid="uid://dytt4frabjc1e" path="res://Scripts/inv_UI.gd" id="2_a5tqx"]
+[ext_resource type="FontFile" uid="uid://w4fs036s6dut" path="res://Assets/Theme/Themes/dogica.ttf" id="3_a7jf4"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_4dvsh"]
+font = ExtResource("3_a7jf4")
+font_size = 8
+font_color = Color(0, 0, 0, 1)
+
+[node name="Inventory" type="Panel" unique_id=1164731884]
+modulate = Color(1, 1, 1, 0.4392157)
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -212.0
+offset_top = -56.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(2, 2)
+pivot_offset = Vector2(212, 56)
+theme = ExtResource("1_cytey")
+script = ExtResource("2_a5tqx")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=346109651]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1558382634]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Slot1" type="Panel" parent="MarginContainer/HBoxContainer" unique_id=2068600830]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/Slot1" unique_id=447021566]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ShortcutLabel" type="Label" parent="MarginContainer/HBoxContainer/Slot1" unique_id=352314181]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.062000003
+anchor_right = 0.5
+anchor_bottom = 0.062000003
+offset_left = -22.0
+offset_top = 0.02399993
+offset_right = 22.0
+offset_bottom = 8.024
+label_settings = SubResource("LabelSettings_4dvsh")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 1
+
+[node name="Slot2" type="Panel" parent="MarginContainer/HBoxContainer" unique_id=476631239]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/Slot2" unique_id=1527145476]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ShortcutLabel" type="Label" parent="MarginContainer/HBoxContainer/Slot2" unique_id=558982815]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.062000003
+anchor_right = 0.5
+anchor_bottom = 0.062000003
+offset_left = -22.0
+offset_top = 0.02399993
+offset_right = 22.0
+offset_bottom = 8.024
+label_settings = SubResource("LabelSettings_4dvsh")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 1
+
+[node name="Slot3" type="Panel" parent="MarginContainer/HBoxContainer" unique_id=836755068]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/Slot3" unique_id=1052708657]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ShortcutLabel" type="Label" parent="MarginContainer/HBoxContainer/Slot3" unique_id=797974326]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.062000003
+anchor_right = 0.5
+anchor_bottom = 0.062000003
+offset_left = -22.0
+offset_top = 0.02399993
+offset_right = 22.0
+offset_bottom = 8.024
+label_settings = SubResource("LabelSettings_4dvsh")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 1
+
+[node name="Slot4" type="Panel" parent="MarginContainer/HBoxContainer" unique_id=1540567011]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer/Slot4" unique_id=234085646]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ShortcutLabel" type="Label" parent="MarginContainer/HBoxContainer/Slot4" unique_id=557996794]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.062000003
+anchor_right = 0.5
+anchor_bottom = 0.062000003
+offset_left = -22.0
+offset_top = 0.02399993
+offset_right = 22.0
+offset_bottom = 8.024
+label_settings = SubResource("LabelSettings_4dvsh")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 1

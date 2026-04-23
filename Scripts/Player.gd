@@ -1,19 +1,12 @@
 extends CharacterBody3D
 class_name Player
 
-## ITEMS (DRIVE AND LED)
-
-@onready var drive: MeshInstance3D = $Campivot/Camera3D/Drive
-@onready var led: Sprite3D = $Campivot/Camera3D/Drive/LED
+## ITEMS
+@onready var item_holder: Marker3D = $Campivot/Camera3D/ItemHolder
 @onready var sanity_bar: ProgressBar = $"../UI/SanityBar"
+@onready var inventory: Inventory = $Inventory
 
-# Цвета для LED в зависимости от категории сайта
-const LED_COLORS = {
-	"normal": Color(0.0, 0.5, 1.0),     # Синий
-	"suspicious": Color(1.0, 1.0, 0.0), # Жёлтый
-	"dangerous": Color(1.0, 0.0, 0.0),  # Красный
-	"none": Color(0.2, 0.2, 0.2)        # Тёмный (выключен)
-}
+var current_item_instance: Node3D = null
 
 # =================== Звук врага ===================
 @export var max_hear_distance: float = 20.0
@@ -62,6 +55,7 @@ var _sanity_regen_timer: float = 0.0
 var _target_h_rotation: float = 0.0
 var _target_v_rotation: float = 0.0
 var controls_locked: bool = false
+var _is_dead: bool = false
 
 var _attraction_target: Node3D = null
 var _attraction_target_visible: bool = false
@@ -79,23 +73,19 @@ func _ready() -> void:
 	_target_v_rotation = camera.rotation.x
 	sanity_updated.emit(current_sanity, max_sanity)
 	
-	# Инициализируем полоску рассудка
 	if sanity_bar:
 		sanity_bar.max_value = max_sanity
 		sanity_bar.value = current_sanity
 	
-	# Подключаемся к сигналам FlashDriveManager
-	if FlashDriveManager:
-		FlashDriveManager.flash_drive_collected.connect(_on_flash_drive_collected)
-		FlashDriveManager.flash_drive_inserted.connect(_on_flash_drive_inserted)
-		FlashDriveManager.flash_drive_ejected.connect(_on_flash_drive_ejected)
-		FlashDriveManager.flash_drive_consumed.connect(_on_flash_drive_consumed)
+	if not inventory:
+		inventory = Inventory.new()
+		add_child(inventory)
 	
-	# Подключаем собственный сигнал sanity_updated к обновлению бара
+	inventory.setup(self)
+	inventory.item_equipped.connect(_on_item_equipped)
+	inventory.item_unequipped.connect(_on_item_unequipped)
+	
 	sanity_updated.connect(_on_sanity_updated)
-	
-	# Флешка скрыта по умолчанию
-	_hide_drive()
 
 # =====================================================
 #  SANITY BAR
@@ -106,7 +96,6 @@ func _on_sanity_updated(current: float, max_val: float) -> void:
 		sanity_bar.max_value = max_val
 		sanity_bar.value = current
 		
-		# Меняем цвет в зависимости от уровня
 		var t = current / max_val
 		if t > 0.5:
 			sanity_bar.modulate = Color.GREEN
@@ -116,68 +105,61 @@ func _on_sanity_updated(current: float, max_val: float) -> void:
 			sanity_bar.modulate = Color.RED
 
 # =====================================================
-#  FLASH DRIVE VISUALS
+#  INVENTORY & ITEMS
 # =====================================================
 
-func _show_drive() -> void:
-	drive.visible = true
-	led.visible = true
-	print("[Player] Flash drive shown")
+func _on_item_equipped(item: Item) -> void:
+	# Сначала убираем старый предмет
+	if current_item_instance:
+		current_item_instance.queue_free()
+		current_item_instance = null
+	
+	# Потом экипируем новый
+	item.on_equip(self)
+	print("[Player] Equipped: ", item.display_name)
 
-func _hide_drive() -> void:
-	drive.visible = false
-	led.visible = false
-	print("[Player] Flash drive hidden")
+func _on_item_unequipped() -> void:
+	if current_item_instance:
+		current_item_instance.queue_free()
+		current_item_instance = null
+	print("[Player] Unequipped item")
 
-func _set_led_color(color_key: String) -> void:
-	print("[Player] Setting LED color to: ", color_key)
-	
-	var color = LED_COLORS.get(color_key, LED_COLORS["none"])
-	
-	if not led:
-		print("[Player] ERROR: LED not found!")
-		return
-	
-	var material: StandardMaterial3D
-	
-	if led.material_override:
-		material = led.material_override
+func show_disk(disk: DiskItem) -> void:
+	# Создаём экземпляр сцены диска
+	if disk.scene:
+		current_item_instance = disk.scene.instantiate()
+		item_holder.add_child(current_item_instance)
+		current_item_instance.position = Vector3.ZERO
+		print("[Player] Disk equipped: ", disk.get_color_name())
 	else:
-		material = StandardMaterial3D.new()
-		led.material_override = material
+		print("[Player] WARNING: Disk has no scene!")
+
+func hide_disk() -> void:
+	if current_item_instance:
+		current_item_instance.queue_free()
+		current_item_instance = null
+
+func try_insert_disk(disk: DiskItem) -> bool:
+	interaction_shape.force_shapecast_update()
+	var result = interaction_shape.get_collision_result()
 	
-	material.emission_enabled = true
-	material.emission = color
-	material.emission_energy_multiplier = 13.0
-	material.albedo_color = color
-
-func _on_flash_drive_collected(color: String) -> void:
-	print("[Player] Flash drive collected: ", color)
-	_show_drive()
+	if result.is_empty():
+		print("[Player] Not looking at terminal")
+		return false
 	
-	match color:
-		"blue": _set_led_color("normal")
-		"red": _set_led_color("suspicious")
-		"green": _set_led_color("dangerous")
-		_: _set_led_color("none")
-
-func _on_flash_drive_inserted(site: PageContent) -> void:
-	print("[Player] Flash drive inserted into terminal")
-	_hide_drive()
-
-func _on_flash_drive_ejected() -> void:
-	print("[Player] Flash drive ejected")
-	_hide_drive()
-	_set_led_color("none")
-
-func _on_flash_drive_consumed() -> void:
-	print("[Player] Flash drive consumed")
-	_hide_drive()
-	_set_led_color("none")
+	var collider = result[0]["collider"]
+	if collider is BrowserTerminal:
+		if DiskManager:
+			var success = DiskManager.insert_disk(disk)
+			if success:
+				inventory.remove_item(disk)
+			return success
+	
+	return false
 
 # =================== Инпут ===================
 func _unhandled_input(event: InputEvent) -> void:
-	if controls_locked:
+	if controls_locked or _is_dead:
 		return
 	
 	if event.is_action_pressed("ui_cancel"):
@@ -196,10 +178,31 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event.is_action_pressed("interact"):
 		_try_interact()
+	
+	# Переключение слотов инвентаря
+	if event.is_action_pressed("slot_1"):
+		inventory.set_active_slot(0)
+	elif event.is_action_pressed("slot_2"):
+		inventory.set_active_slot(1)
+	elif event.is_action_pressed("slot_3"):
+		inventory.set_active_slot(2)
+	elif event.is_action_pressed("slot_4"):
+		inventory.set_active_slot(3)
+	
+	# Колёсико мыши
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
+			inventory.prev_slot()
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
+			inventory.next_slot()
+	
+	# Использование предмета
+	if event.is_action_pressed("use_item"):
+		inventory.use_active_item()
 
 # =================== Процесс ===================
 func _process(delta: float) -> void:
-	if controls_locked:
+	if controls_locked or _is_dead:
 		return
 	
 	rotation.y = _target_h_rotation
@@ -209,6 +212,9 @@ func _process(delta: float) -> void:
 		_apply_camera_attraction(delta)
 
 func _physics_process(delta: float) -> void:
+	if _is_dead:
+		return
+		
 	if not controls_locked:
 		if not is_on_floor():
 			velocity.y -= gravity * delta
@@ -322,7 +328,6 @@ func _try_interact() -> void:
 
 	var collider = result[0]["collider"]
 	
-	# Поддержка и StaticBody3D (терминалы) и Area3D (зона восстановления)
 	if collider.has_method("interact"):
 		collider.interact()
 
@@ -341,6 +346,9 @@ func _headbob_effect(delta: float) -> void:
 
 # =================== Рассудок ===================
 func _update_sanity(delta: float) -> void:
+	if _is_dead:
+		return
+		
 	if _sanity_drain_active:
 		current_sanity = max(current_sanity - sanity_drain_rate * delta, 0.0)
 		_sanity_regen_timer = sanity_regen_delay
@@ -349,17 +357,85 @@ func _update_sanity(delta: float) -> void:
 			_sanity_regen_timer -= delta
 		else:
 			current_sanity = min(current_sanity + sanity_regen_rate * delta, max_sanity)
+	
 	sanity_updated.emit(current_sanity, max_sanity)
+	
+	if current_sanity <= 0.0:
+		_die()
 
 func set_sanity_drain(active: bool) -> void:
 	_sanity_drain_active = active
 
 func add_sanity(amount: float) -> void:
+	if _is_dead:
+		return
 	current_sanity = min(current_sanity + amount, max_sanity)
 	sanity_updated.emit(current_sanity, max_sanity)
 
+func drain_sanity(amount: float) -> void:
+	if _is_dead:
+		return
+	current_sanity = max(current_sanity - amount, 0.0)
+	_sanity_regen_timer = sanity_regen_delay
+	sanity_updated.emit(current_sanity, max_sanity)
+	
+	if current_sanity <= 0.0:
+		_die()
+
 func get_sanity() -> float:
 	return current_sanity
+
+# =================== СМЕРТЬ ===================
+
+func _die() -> void:
+	if _is_dead:
+		return
+		
+	_is_dead = true
+	print("[Player] SANITY REACHED ZERO - GAME OVER")
+	
+	controls_locked = true
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
+	_show_death_screen()
+	
+	await get_tree().create_timer(3.0).timeout
+	_restart_scene()
+
+func _show_death_screen() -> void:
+	var canvas = CanvasLayer.new()
+	canvas.layer = 128
+	add_child(canvas)
+	
+	var color_rect = ColorRect.new()
+	color_rect.color = Color.BLACK
+	color_rect.modulate = Color(0, 0, 0, 0)
+	color_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	canvas.add_child(color_rect)
+	
+	var label = Label.new()
+	label.text = "YOUR MIND HAS LEFT YOU..."
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 48)
+	label.add_theme_color_override("font_color", Color.RED)
+	label.modulate = Color(1, 1, 1, 0)
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	canvas.add_child(label)
+	
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(color_rect, "modulate", Color.BLACK, 2.0)
+	tween.tween_property(label, "modulate", Color.RED, 2.0)
+
+func _restart_scene() -> void:
+	print("[Player] Restarting scene...")
+	
+	if DailyManager:
+		DailyManager.current_day = 1
+		DailyManager.start_new_day()
+	
+	get_tree().reload_current_scene()
 
 # =================== Блокировка управления ===================
 func lock_controls() -> void:
@@ -367,6 +443,8 @@ func lock_controls() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 func unlock_controls() -> void:
+	if _is_dead:
+		return
 	controls_locked = false
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
@@ -383,9 +461,3 @@ func update_terror_radius(enemy_pos: Vector3) -> void:
 		terror_radius.play()
 	elif t <= 0.0 and terror_radius.playing:
 		terror_radius.stop()
-		
-
-func drain_sanity(amount: float) -> void:
-	current_sanity = max(current_sanity - amount, 0.0)
-	_sanity_regen_timer = sanity_regen_delay
-	sanity_updated.emit(current_sanity, max_sanity)

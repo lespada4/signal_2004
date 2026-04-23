@@ -73,14 +73,6 @@ signal level_completed(level_id: int, reward: String)
 # =====================================================
 func _ready() -> void:
 	await get_tree().process_frame
-	
-	# Проверяем, можно ли играть
-	if FlashDriveManager and not FlashDriveManager.can_collect_flash_drive():
-		# Если сайт загружен — сбрасываем его
-		if FlashDriveManager.is_site_loaded():
-			FlashDriveManager.reset_for_new_flash_drive()
-			print("[WaveTuner] Reset: cleared loaded site")
-	
 	_load_random_level()
 	resized.connect(_on_control_resize)
 
@@ -168,17 +160,17 @@ func _load_random_level() -> void:
 	_draw_lines()
 
 func _give_reward(reward_type: String) -> void:
-	if FlashDriveManager:
-		var success = FlashDriveManager.collect_flash_drive(reward_type)
-		if success:
-			print("[WaveTuner] Flash drive collected!")
-		else:
-			print("[WaveTuner] Cannot collect flash drive!")
-	
 	match reward_type:
-		"blue": print("🎁 ПОЛУЧЕНА СИНЯЯ ФЛЕШКА!")
-		"red": print("🎁 ПОЛУЧЕНА КРАСНАЯ ФЛЕШКА!")
-		"green": print("🎁 ПОЛУЧЕНА ЗЕЛЁНАЯ ФЛЕШКА!")
+		"blue": print("🎁 ПОЛУЧЕН СИНИЙ ДИСК!")
+		"red": print("🎁 ПОЛУЧЕН КРАСНЫЙ ДИСК!")
+		"green": print("🎁 ПОЛУЧЕН ЗЕЛЁНЫЙ ДИСК!")
+	
+	if DiskManager:  # ← ИЗМЕНЕНО (было FlashDriveManager)
+		var disk = DiskManager.award_disk(reward_type)
+		if disk:
+			print("[WaveTuner] Disk added to inventory!")
+		else:
+			print("[WaveTuner] Could not add disk - inventory full?")
 
 func _on_level_completed() -> void:
 	var reward = current_preset["reward"]

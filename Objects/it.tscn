@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cahrl7qs2cur1" path="res://Objects/it.gd" id="1_gx6kv"]
 [ext_resource type="Shader" uid="uid://dvnle7x74nf7o" path="res://Objects/it.gdshader" id="2_quvie"]
 [ext_resource type="AudioStream" uid="uid://bs3yroxkurf3k" path="res://Audio/mod2_1_.mp3" id="3_tjfnh"]
+[ext_resource type="Script" uid="uid://bm0wef537wujq" path="res://Scripts/inventory.gd" id="4_lce64"]
 
 [sub_resource type="Gradient" id="Gradient_tjfnh"]
 interpolation_mode = 2
@@ -42,9 +43,7 @@ collision_mask = 4
 script = ExtResource("1_gx6kv")
 teleport_interval = 1.0
 min_spawn_distance = 5.0
-sanity_drain_radius = 6.0
-max_sanity_drain_rate = 5.0
-visible_drain_multiplier = 5.0
+base_drain_rate = 10.0
 attack_mode_multiplier = 3.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=734257204]
@@ -63,3 +62,6 @@ pitch_scale = 0.44
 autoplay = true
 max_distance = 1024.0
 panning_strength = 0.0
+
+[node name="Inventory" type="Node" parent="." unique_id=1601726426]
+script = ExtResource("4_lce64")

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dfxguass7dwj" path="res://Scripts/Player.gd" id="1_8r7yd"]
 [ext_resource type="Shader" uid="uid://bbf4xgucu6u05" path="res://Shader/PSXPost.gdshader" id="2_n6db0"]
-[ext_resource type="Texture2D" uid="uid://b16cgdl74t1o5" path="res://Web images/sus/Abstract_Noise_026-256x256.png" id="3_u60sl"]
+[ext_resource type="Script" uid="uid://bm0wef537wujq" path="res://Scripts/inventory.gd" id="5_t1tke"]
 [ext_resource type="Shader" uid="uid://brhootcg454j6" path="res://Shader/pixeliz.gdshader" id="5_u60sl"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n6db0"]
@@ -24,22 +24,6 @@ shader_parameter/noise_time_fac = 0.10000000149012
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_8r7yd"]
 radius = 0.1
-
-[sub_resource type="BoxMesh" id="BoxMesh_gijnf"]
-size = Vector3(0.06, 0.17, 0.03)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u60sl"]
-albedo_color = Color(0.7708395, 0.77083945, 0.77083945, 1)
-albedo_texture = ExtResource("3_u60sl")
-metallic = 1.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gijnf"]
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 13.94
-billboard_mode = 1
-
-[sub_resource type="CanvasTexture" id="CanvasTexture_u60sl"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_u60sl"]
 shader = ExtResource("5_u60sl")
@@ -92,22 +76,8 @@ target_position = Vector3(0, 0, -2)
 collision_mask = 2
 collide_with_areas = true
 
-[node name="Drive" type="MeshInstance3D" parent="Campivot/Camera3D" unique_id=1626681849]
-transform = Transform3D(1, 0, 0, 0, 0.80759895, 0.5897321, 0, -0.5897321, 0.80759895, 0.21536297, -0.12977195, -0.34028718)
-cast_shadow = 0
-mesh = SubResource("BoxMesh_gijnf")
-surface_material_override/0 = SubResource("StandardMaterial3D_u60sl")
-
-[node name="LED" type="Sprite3D" parent="Campivot/Camera3D/Drive" unique_id=1162840138]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.016412377, 0.02485609)
-material_override = SubResource("StandardMaterial3D_gijnf")
-cast_shadow = 0
-pixel_size = 0.025
-billboard = 1
-no_depth_test = true
-texture_filter = 0
-render_priority = 1
-texture = SubResource("CanvasTexture_u60sl")
+[node name="ItemHolder" type="Marker3D" parent="Campivot/Camera3D" unique_id=1493964300]
+transform = Transform3D(0.96882147, -0.19697116, 0.150291, 0.24776001, 0.7702207, -0.58768624, 0, 0.6065991, 0.7950079, 0.21536297, -0.12977195, -0.34028718)
 
 [node name="InteractionRay" type="RayCast3D" parent="Campivot" unique_id=111618508]
 target_position = Vector3(0, 0, -2)
@@ -125,3 +95,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = SubResource("CanvasTexture_gijnf")
+
+[node name="Inventory" type="Node" parent="." unique_id=1550126367]
+script = ExtResource("5_t1tke")

@@ -6,18 +6,18 @@ extends CharacterBody3D
 @export var min_spawn_distance: float = 3.0
 @export var teleport_radius: float = 15.0
 @export var search_radius: float = 8.0
-@export var spawn_delay: float = 3.0  # Задержка перед началом атаки
-@export var audio_fade_duration: float = 2.0  # Длительность нарастания звука
+@export var spawn_delay: float = 3.0
+@export var audio_fade_duration: float = 2.0
 
 @onready var audio_stream_player_3d: AudioStreamPlayer3D = $AudioStreamPlayer3D
 
 # =====================================================
-#  ВЛИЯНИЕ НА РАССУДОК
+#  ВЛИЯНИЕ НА РАССУДОК (ТОЛЬКО В ПОЛЕ ЗРЕНИЯ)
 # =====================================================
-@export var sanity_drain_radius: float = 12.0
-@export var max_sanity_drain_rate: float = 15.0
-@export var visible_drain_multiplier: float = 3.0
-@export var attack_mode_multiplier: float = 1.5
+@export var sanity_drain_radius: float = 20.0  # Радиус, в котором враг ВИДЕН
+@export var base_drain_rate: float = 20.0  # Базовая скорость дренажа в поле зрения
+@export var attack_mode_multiplier: float = 1.5  # Множитель в режиме АТАКИ
+@export var distance_multiplier: float = 1.5  # Множитель за близость (чем ближе — тем сильнее)
 
 enum Behavior { SEARCH, ATTACK }
 enum SpawnState { SPAWNING, ACTIVE }
@@ -40,7 +40,6 @@ func _ready() -> void:
 			spawn_points.append(node)
 	add_to_group("enemy")
 	
-	# Начальное состояние - невидим и без звука
 	visible = false
 	spawn_timer = spawn_delay
 	
@@ -57,8 +56,6 @@ func _process(delta: float) -> void:
 	# Обработка фазы появления
 	if spawn_state == SpawnState.SPAWNING:
 		spawn_timer -= delta
-		
-		# Плавно наращиваем звук
 		_update_spawn_audio()
 		
 		if spawn_timer <= 0.0:
@@ -67,17 +64,24 @@ func _process(delta: float) -> void:
 	
 	# Активная фаза
 	_is_visible = _is_visible_to_player()
+	
+	# Звуковой радиус (для атмосферы)
 	player.update_terror_radius(global_position)
-	_update_sanity_drain(delta)
+	
+	# Влияние на рассудок ТОЛЬКО если виден
+	if _is_visible:
+		_update_sanity_drain(delta)
 	
 	behavior_timer += delta
 	if behavior_timer >= behavior_duration:
 		_switch_behavior()
 	
+	# Если игрок смотрит на врага — враг НЕ телепортируется
 	if _is_visible:
 		_timer = 0.0
 		return
 	
+	# Телепортация только когда не виден
 	_timer += delta
 	if _timer >= teleport_interval:
 		_timer = 0.0
@@ -105,36 +109,41 @@ func _activate() -> void:
 	visible = true
 	_switch_behavior()
 	
-	# Финальная громкость
 	if audio_stream_player_3d:
 		audio_stream_player_3d.volume_db = -2.0
 	
 	print("[Enemy] Activated! Now hunting...")
 
 # =====================================================
-#  ВЛИЯНИЕ НА РАССУДОК
+#  ВЛИЯНИЕ НА РАССУДОК (ТОЛЬКО КОГДА ВИДЕН)
 # =====================================================
 
 func _update_sanity_drain(delta: float) -> void:
+	if not _is_visible:
+		return  # Не виден — не влияет
+	
 	var dist = global_position.distance_to(player.global_position)
 	
+	# Если слишком далеко — не влияет
 	if dist > sanity_drain_radius:
 		return
 	
-	var distance_factor = 1.0 - (dist / sanity_drain_radius)
+	# Множитель расстояния: чем ближе, тем сильнее (от 1.0 до 2.0+)
+	var distance_factor = 1.0 + (1.0 - dist / sanity_drain_radius) * distance_multiplier
 	
-	var visibility_factor = 1.0
-	if _is_visible:
-		visibility_factor = visible_drain_multiplier
-	
+	# Множитель режима атаки
 	var behavior_factor = 1.0
 	if current_behavior == Behavior.ATTACK:
 		behavior_factor = attack_mode_multiplier
 	
-	var drain_rate = max_sanity_drain_rate * distance_factor * visibility_factor * behavior_factor
+	# Итоговая скорость дренажа
+	var drain_rate = base_drain_rate * distance_factor * behavior_factor
 	
 	if player.has_method("drain_sanity"):
 		player.drain_sanity(drain_rate * delta)
+	
+	# Отладка (можно убрать)
+	# print("[Enemy] Drain: ", drain_rate, " (dist: ", dist, ", visible: ", _is_visible, ")")
 
 func _switch_behavior() -> void:
 	behavior_timer = 0.0
@@ -246,9 +255,15 @@ func _is_visible_to_player() -> bool:
 	var to_enemy = (global_position - cam.global_position).normalized()
 	var cam_forward = -cam.global_transform.basis.z
 	
+	# Проверка угла обзора
 	if rad_to_deg(to_enemy.angle_to(cam_forward)) > fov_angle / 2.0:
 		return false
 	
+	# Проверка расстояния
+	if global_position.distance_to(cam.global_position) > sanity_drain_radius:
+		return false
+	
+	# Проверка прямой видимости (нет препятствий)
 	var space = get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(cam.global_position, global_position)
 	query.exclude = [self, player]

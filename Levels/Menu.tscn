@@ -8,6 +8,10 @@
 [sub_resource type="LabelSettings" id="LabelSettings_vuwk1"]
 font_size = 48
 
+[sub_resource type="LabelSettings" id="LabelSettings_6a0hj"]
+font_size = 24
+font_color = Color(0, 0, 0, 1)
+
 [node name="Control" type="Control" unique_id=1261561313]
 layout_mode = 3
 anchors_preset = 15
@@ -106,3 +110,28 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 text = "BACK"
+
+[node name="Panel" type="Panel" parent="." unique_id=1247574495]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -135.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Label" type="Label" parent="." unique_id=1574355640]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -128.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Верхний монитор - статистика по задачам. Нижний левый - мини-игра для получения сигнала с сайтом. Нижний правый позволяет открыть сайт и определить его категорию.Если определить категорию аномального или опасного сайта неправильно - появится враг. Спрятаться от врага можно в ванной комнате, желательно включив душ. Настройки ничего не делают в меню."
+label_settings = SubResource("LabelSettings_6a0hj")
+horizontal_alignment = 1
+autowrap_mode = 3

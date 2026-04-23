@@ -132,8 +132,8 @@ func _on_category_pressed(chosen_category: ContentGenerator.SiteCategory) -> voi
 		print("[ArticlePage] Site reported to DailyManager")
 	
 	# Сообщаем FlashDriveManager что сайт обработан
-	if FlashDriveManager:
-		FlashDriveManager.eject_flash_drive()
+	if DiskManager:
+		DiskManager.eject_flash_drive()
 
 func _find_enemy_manager() -> Node:
 	# Способ 1: Ищем через группу

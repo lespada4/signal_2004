@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://dgrswv6l3u7ii"]
+
+[ext_resource type="Shader" uid="uid://cj5vgg1u1m4mj" path="res://disk.gdshader" id="1_deohg"]
+[ext_resource type="Texture2D" uid="uid://b16cgdl74t1o5" path="res://Web images/sus/Abstract_Noise_026-256x256.png" id="2_ktehx"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_r0eov"]
+inner_radius = 0.058
+outer_radius = 0.015
+rings = 16
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_erqjt"]
+noise_type = 3
+frequency = 0.095
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_btrbp"]
+width = 128
+height = 128
+noise = SubResource("FastNoiseLite_erqjt")
+seamless = true
+in_3d_space = true
+as_normal_map = true
+seamless_blend_skirt = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_t8fv4"]
+render_priority = 3
+shader = ExtResource("1_deohg")
+shader_parameter/texture_normal = SubResource("NoiseTexture2D_btrbp")
+shader_parameter/normal_depth = 0.05
+shader_parameter/color_compression = 6.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f1owi"]
+albedo_color = Color(0.5330367, 0.5330367, 0.5330367, 1)
+albedo_texture = ExtResource("2_ktehx")
+metallic = 0.5
+texture_filter = 0
+
+[sub_resource type="BoxMesh" id="BoxMesh_q54n4"]
+material = SubResource("StandardMaterial3D_f1owi")
+size = Vector3(0.24, 0.01, 0.24)
+
+[node name="Node3D" type="Node3D" unique_id=1330927967]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=790975950]
+transform = Transform3D(2, 0, 0, 0, 0.015, 0, 0, 0, 2, 0, 0, 0)
+cast_shadow = 0
+mesh = SubResource("TorusMesh_r0eov")
+surface_material_override/0 = SubResource("ShaderMaterial_t8fv4")
+
+[node name="diskette" type="MeshInstance3D" parent="." unique_id=84438432]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.008780029, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_q54n4")
