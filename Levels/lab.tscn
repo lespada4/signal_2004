@@ -20,16 +20,18 @@
 [ext_resource type="Material" uid="uid://rlw72342kveg" path="res://Textures/Marble_B22lu_64.tres" id="17_6v1w5"]
 [ext_resource type="Shader" uid="uid://ba5frf2i7exv2" path="res://Shader/glas.gdshader" id="19_8d7l4"]
 [ext_resource type="Material" uid="uid://6wyguk0k67pk" path="res://Textures/Tile_32.tres" id="20_o0y7i"]
-[ext_resource type="PackedScene" uid="uid://qw5lw14lp1cy" path="res://Objects/Signal_Game.tscn" id="20_vvy6e"]
 [ext_resource type="PackedScene" uid="uid://c3gypcp1k4qoj" path="res://Objects/panel_radar.tscn" id="21_8d7l4"]
 [ext_resource type="PackedScene" uid="uid://dp4nq8imaiov" path="res://Objects/pages/article.tscn" id="21_a6ytt"]
+[ext_resource type="PackedScene" uid="uid://bgxel4coi23de" path="res://Objects/pages/WaveTuner.tscn" id="22_8eg55"]
 [ext_resource type="PackedScene" uid="uid://cegp4xthig311" path="res://Objects/Website_1.tscn" id="22_ufsj7"]
 [ext_resource type="PackedScene" uid="uid://byudtr1crhfax" path="res://Objects/statistics.tscn" id="24_1u3im"]
 [ext_resource type="PackedScene" uid="uid://cu5ieb08ui7ht" path="res://Objects/it.tscn" id="24_a6ytt"]
 [ext_resource type="PackedScene" uid="uid://xmlk0em8vj6v" path="res://Objects/Door.tscn" id="25_ufsj7"]
+[ext_resource type="PackedScene" uid="uid://dnkrs4ervpvfo" path="res://Objects/dispenser.tscn" id="27_1u3im"]
 [ext_resource type="Texture2D" uid="uid://b16cgdl74t1o5" path="res://Web images/sus/Abstract_Noise_026-256x256.png" id="28_rnudo"]
 [ext_resource type="Script" uid="uid://cyeuvj1g540nl" path="res://Objects/shower.gd" id="29_5o1f1"]
 [ext_resource type="AudioStream" uid="uid://feibtq4xosep" path="res://Audio/zvuk-vody-v-dushe.mp3" id="30_qa6ul"]
+[ext_resource type="PackedScene" uid="uid://c58boqrnaofdp" path="res://Objects/cleaner.tscn" id="32_8eg55"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_s8j3m"]
 _surfaces = [{
@@ -1206,7 +1208,7 @@ jam_duration = 120.0
 environment_transition_duration = 3.0
 
 [node name="Player" parent="." index="0" unique_id=796169799]
-transform = Transform3D(-0.97106344, 0, 0.2388216, 0, 1, 0, -0.2388216, 0, -0.97106344, 0.030844405, 1.4374533, -10.293629)
+transform = Transform3D(-0.97106344, 0, 0.2388216, 0, 1, 0, -0.2388216, 0, -0.97106344, 0.030844405, 1.4374533, 6.4047804)
 
 [node name="FuncGodotMap" type="Node3D" parent="." index="1" unique_id=1193407606]
 transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
@@ -1420,7 +1422,7 @@ metadata/extras = {
 [node name="Panel_Radar" parent="." index="6" unique_id=116620493 instance=ExtResource("21_8d7l4")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.6683505, 1.857705, 7.43869)
 mode = 0
-ui_scene = ExtResource("20_vvy6e")
+ui_scene = ExtResource("22_8eg55")
 
 [node name="Panel_Radar2" parent="." index="7" unique_id=322272534 instance=ExtResource("21_8d7l4")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.6683505, 1.857705, 6.0751386)
@@ -1580,3 +1582,9 @@ font_size = 42
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="StaticBody3D" index="3" unique_id=747079245]
 stream = ExtResource("30_qa6ul")
+
+[node name="Dispenser" parent="." index="19" unique_id=135312379 instance=ExtResource("27_1u3im")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5673225, 1.0467877, 4.317976)
+
+[node name="Cleaner" parent="." index="20" unique_id=86321815 instance=ExtResource("32_8eg55")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4615455, 0.98748446, 8.535682)

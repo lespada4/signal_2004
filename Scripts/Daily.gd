@@ -6,23 +6,55 @@ extends Node
 
 signal day_started(day: int)
 signal sites_generated(sites: Array[PageContent])
-signal site_completed(site: PageContent, category: ContentGenerator.SiteCategory)
-signal day_completed(day: int, normal_completed: int, rare_completed: int)
+signal site_completed(site: PageContent, chosen_category: ContentGenerator.SiteCategory, is_correct: bool, is_blacklisted_correct: bool, score: int)
+signal day_completed(day: int, final_score: int, quota: int)
+signal score_updated(current: int, quota: int)
+
+# =====================================================
+#  БЛЕК-ЛИСТЫ ПО ДНЯМ
+# =====================================================
+
+const BLACKLIST = {
+	1: {
+		"authors": ["Redto Phil", "Kyle Saren"],
+		"domains": [".ab", ".??"],
+	},
+	2: {
+		"authors": ["Sc44m", "Zorro Rumi"],
+		"domains": [".end", ".brk"],
+	},
+	3: {
+		"authors": ["Dr. Ganium", "Abime Historia", "Contained Jeremy", "Arsi", "Shiro", "Jay Gail"],
+		"domains": [".!!", "..."],
+	}
+}
+
+# =====================================================
+#  ТАБЛИЦА ОЧКОВ
+# =====================================================
+
+const SCORE_TABLE = {
+	"correct": {
+		ContentGenerator.SiteCategory.NORMAL: 25,
+		ContentGenerator.SiteCategory.SUSPICIOUS: 40,
+		ContentGenerator.SiteCategory.DANGEROUS: 60
+	},
+	"wrong": {
+		ContentGenerator.SiteCategory.NORMAL: -10,
+		ContentGenerator.SiteCategory.SUSPICIOUS: -25,
+		ContentGenerator.SiteCategory.DANGEROUS: -40
+	}
+}
 
 # =====================================================
 #  СОСТОЯНИЕ
 # =====================================================
 
 var current_day: int = 1
+var current_score: int = 0
+var daily_quota: int = 50
 var sites_today: Array[PageContent] = []
 var sites_completed: Array[PageContent] = []
-
-var normal_sites_required: int = 2
-var rare_sites_required: int = 1
-
-var normal_completed: int = 0
-var rare_completed: int = 0
-
 var generator: ContentGenerator
 
 # =====================================================
@@ -38,50 +70,109 @@ func _ready() -> void:
 # =====================================================
 
 func start_new_day() -> void:
-	print("")
-	print("[DailyManager] ╔══════════════════════════════════════════════╗")
-	print("[DailyManager] ║              DAY ", current_day, " STARTED                   ║")
-	print("[DailyManager] ╚══════════════════════════════════════════════╝")
-	print("[DailyManager]")
-	print("[DailyManager] 📋 TODAY'S TASKS:")
-	print("[DailyManager]    • Normal sites required:  ", normal_sites_required)
-	print("[DailyManager]    • Rare sites required:    ", rare_sites_required)
-	print("[DailyManager]")
-	
+	current_score = 0
 	sites_today.clear()
 	sites_completed.clear()
-	normal_completed = 0
-	rare_completed = 0
 	
-	# 2 обычных сайта
-	print("[DailyManager] 🔄 Generating normal sites...")
-	for i in range(normal_sites_required):
-		var site = generator.generate_site(ContentGenerator.SiteCategory.NORMAL)
+	daily_quota = 50 + (current_day - 1) * 30
+	
+	print("")
+	print("[DailyManager] ╔══════════════════════════════════════════════╗")
+	print("[DailyManager] ║              DAY ", current_day, " STARTED                 ║")
+	print("[DailyManager] ╚══════════════════════════════════════════════╝")
+	print("[DailyManager]")
+	print("[DailyManager] 📊 DAILY QUOTA: ", daily_quota, " points")
+	print("[DailyManager]    NORMAL: +25 / -10")
+	print("[DailyManager]    SUSPICIOUS: +40 / -25")
+	print("[DailyManager]    DANGEROUS: +60 / -40")
+	print("[DailyManager]    BLACKLIST missed: -50% pts")
+	
+	var bl = get_blacklist_for_day(current_day)
+	print("[DailyManager]")
+	print("[DailyManager] 📋 BLACKLIST:")
+	print("[DailyManager]    Authors: ", ", ".join(bl.get("authors", [])))
+	print("[DailyManager]    Domains: ", ", ".join(bl.get("domains", [])))
+	print("[DailyManager]    Dates: 2012+")
+	print("[DailyManager]")
+	
+	var site_count = randi_range(3, 4)
+	print("[DailyManager] 🔄 Generating ", site_count, " sites...")
+	for i in range(site_count):
+		var category = _random_category()
+		print("[DailyManager] Generating site for day: ", current_day)
+		var site = generator.generate_site(category, current_day)
+		print("[DailyManager] Site symptoms: ", site.symptoms)
+		# С шансом 40% добавляем блек-лист элемент
+		if randf() < 0.4:
+			_apply_random_blacklist(site)
 		sites_today.append(site)
-		print("[DailyManager]    ", i + 1, ". ", site.title, " (", site.author, ")")
+		print("[DailyManager]    ", i + 1, ". ", site.title, " (", ContentGenerator.SiteCategory.keys()[category], ")")
 	
-	# 1 редкий сайт (подозрительный или опасный)
-	print("[DailyManager] 🔄 Generating rare site...")
-	var rare_category = ContentGenerator.SiteCategory.DANGEROUS if randf() < 0.3 else ContentGenerator.SiteCategory.SUSPICIOUS
-	var rare_site = generator.generate_site(rare_category)
-	sites_today.append(rare_site)
-	
-	var category_name = "DANGEROUS" if rare_category == ContentGenerator.SiteCategory.DANGEROUS else "SUSPICIOUS"
-	print("[DailyManager]    → ", rare_site.title, " (", category_name, ")")
-	
-	# Перемешиваем порядок
 	sites_today.shuffle()
-	
-	print("[DailyManager]")
-	print("[DailyManager] 📦 Total sites in queue: ", sites_today.size())
-	print("[DailyManager]")
-	print("[DailyManager] 🎯 OBJECTIVE: Find and report ALL sites!")
-	print("[DailyManager]    • Normal sites: 0/", normal_sites_required)
-	print("[DailyManager]    • Rare sites:   0/", rare_sites_required)
-	print("[DailyManager]")
 	
 	day_started.emit(current_day)
 	sites_generated.emit(sites_today)
+	score_updated.emit(current_score, daily_quota)
+
+func _random_category() -> ContentGenerator.SiteCategory:
+	var r = randf()
+	if r < 0.5: return ContentGenerator.SiteCategory.NORMAL
+	if r < 0.8: return ContentGenerator.SiteCategory.SUSPICIOUS
+	return ContentGenerator.SiteCategory.DANGEROUS
+
+func _apply_random_blacklist(site: PageContent) -> void:
+	var bl = BLACKLIST.get(current_day, {})
+	var choices = []
+	
+	if not bl.get("authors", []).is_empty():
+		choices.append("author")
+	if not bl.get("domains", []).is_empty():
+		choices.append("domain")
+	choices.append("date")
+	
+	if choices.is_empty():
+		return
+	
+	match choices[randi() % choices.size()]:
+		"author":
+			site.author = bl["authors"][randi() % bl["authors"].size()]
+		"domain":
+			var domain = bl["domains"][randi() % bl["domains"].size()]
+			site.body += "\n\nDomain: " + domain
+		"date":
+			site.date = str(randi_range(2012, 2020)) + "-" + str(randi_range(1, 12)).pad_zeros(2) + "-" + str(randi_range(1, 28)).pad_zeros(2)
+
+# =====================================================
+#  БЛЕК-ЛИСТ ПРОВЕРКИ
+# =====================================================
+
+func _is_date_blacklisted(date: String) -> bool:
+	if date.is_empty():
+		return false
+	var parts = date.split("-")
+	if parts.is_empty():
+		return false
+	var year = parts[0].to_int()
+	return year > 2011
+
+func is_site_blacklisted(site: PageContent, day: int) -> bool:
+	var bl = BLACKLIST.get(day, {})
+	
+	for author in bl.get("authors", []):
+		if site.author.to_lower().contains(author.to_lower()):
+			return true
+	
+	for domain in bl.get("domains", []):
+		if site.body.to_lower().contains(domain.to_lower()):
+			return true
+	
+	if _is_date_blacklisted(site.date):
+		return true
+	
+	return false
+
+func get_blacklist_for_day(day: int) -> Dictionary:
+	return BLACKLIST.get(day, {})
 
 # =====================================================
 #  ПОЛУЧЕНИЕ САЙТОВ
@@ -89,14 +180,8 @@ func start_new_day() -> void:
 
 func get_next_site() -> PageContent:
 	if sites_today.is_empty():
-		print("[DailyManager] ⚠️ No more sites for today!")
 		return null
-	
-	var site = sites_today.pop_front()
-	var category_name = ContentGenerator.SiteCategory.keys()[site.category]
-	print("[DailyManager] 📤 Next site: ", site.title, " (", category_name, ")")
-	print("[DailyManager]    Remaining in queue: ", sites_today.size())
-	return site
+	return sites_today.pop_front()
 
 func get_remaining_sites() -> Array[PageContent]:
 	return sites_today.duplicate()
@@ -108,46 +193,37 @@ func has_sites_remaining() -> bool:
 #  ЗАВЕРШЕНИЕ САЙТА
 # =====================================================
 
-func complete_site(site: PageContent, chosen_category: ContentGenerator.SiteCategory) -> void:
+func complete_site(site: PageContent, chosen_category: ContentGenerator.SiteCategory, player_marked_blacklisted: bool) -> void:
 	var is_correct = (chosen_category == site.category)
+	var is_actually_blacklisted = is_site_blacklisted(site, current_day)
+	var is_blacklisted_correct = (player_marked_blacklisted == is_actually_blacklisted)
 	
-	if is_correct:
-		match site.category:
-			ContentGenerator.SiteCategory.NORMAL:
-				normal_completed += 1
-			_:
-				rare_completed += 1
+	var score = SCORE_TABLE["correct"][site.category] if is_correct else SCORE_TABLE["wrong"][site.category]
 	
+	if not is_blacklisted_correct:
+		score = score / 2
+	
+	current_score = max(0, current_score + score)
 	sites_completed.append(site)
-	site_completed.emit(site, chosen_category)
 	
-	_check_day_completion()
-
-func _check_day_completion() -> void:
-	if normal_completed >= normal_sites_required and rare_completed >= rare_sites_required:
+	site_completed.emit(site, chosen_category, is_correct, is_blacklisted_correct, score)
+	score_updated.emit(current_score, daily_quota)
+	
+	print("[DailyManager] ", "✓" if is_correct else "✗", " ", site.title,
+		  " | Chosen: ", ContentGenerator.SiteCategory.keys()[chosen_category],
+		  " | Actual: ", ContentGenerator.SiteCategory.keys()[site.category],
+		  " | BL: ", player_marked_blacklisted, "/", is_actually_blacklisted,
+		  " | ", score, " pts | Total: ", current_score, "/", daily_quota)
+	
+	if current_score >= daily_quota:
 		print("")
 		print("[DailyManager] ╔══════════════════════════════════════════════╗")
 		print("[DailyManager] ║              DAY ", current_day, " COMPLETED!              ║")
 		print("[DailyManager] ╚══════════════════════════════════════════════╝")
+		print("[DailyManager] 🏆 Final score: ", current_score, " / ", daily_quota)
 		print("[DailyManager]")
-		print("[DailyManager] 🏆 FINAL RESULTS:")
-		print("[DailyManager]    • Normal sites found: ", normal_completed, "/", normal_sites_required)
-		print("[DailyManager]    • Rare sites found:   ", rare_completed, "/", rare_sites_required)
-		print("[DailyManager]    • Total reported:     ", sites_completed.size())
-		print("[DailyManager]")
-		print("[DailyManager] 🎉 Day ", current_day, " successfully completed!")
-		print("[DailyManager]")
-		
-		day_completed.emit(current_day, normal_completed, rare_completed)
+		day_completed.emit(current_day, current_score, daily_quota)
 		current_day += 1
-	else:
-		var remaining_normal = normal_sites_required - normal_completed
-		var remaining_rare = rare_sites_required - rare_completed
-		
-		if remaining_normal > 0:
-			print("[DailyManager] 🔍 Still need to find ", remaining_normal, " normal site(s)")
-		if remaining_rare > 0:
-			print("[DailyManager] 🔍 Still need to find ", remaining_rare, " rare site(s)")
 
 # =====================================================
 #  ПРОГРЕСС
@@ -156,17 +232,14 @@ func _check_day_completion() -> void:
 func get_progress() -> Dictionary:
 	return {
 		"day": current_day,
-		"normal_completed": normal_completed,
-		"normal_required": normal_sites_required,
-		"rare_completed": rare_completed,
-		"rare_required": rare_sites_required,
-		"sites_remaining": sites_today.size()
+		"score": current_score,
+		"quota": daily_quota,
+		"completed": sites_completed.size(),
+		"remaining": sites_today.size()
 	}
 
 func get_completion_percent() -> float:
-	var total_required = normal_sites_required + rare_sites_required
-	var total_completed = normal_completed + rare_completed
-	return float(total_completed) / float(total_required) * 100.0
+	return float(current_score) / float(daily_quota) * 100.0
 
 # =====================================================
 #  ДЕБАГ
@@ -174,8 +247,6 @@ func get_completion_percent() -> float:
 
 func debug_print_status() -> void:
 	print("[DailyManager] === DAY ", current_day, " STATUS ===")
-	print("[DailyManager] Normal: ", normal_completed, "/", normal_sites_required)
-	print("[DailyManager] Rare: ", rare_completed, "/", rare_sites_required)
-	print("[DailyManager] Sites remaining in queue: ", sites_today.size())
-	print("[DailyManager] Total completed: ", sites_completed.size())
+	print("[DailyManager] Score: ", current_score, "/", daily_quota)
+	print("[DailyManager] Completed: ", sites_completed.size(), " | Remaining: ", sites_today.size())
 	print("[DailyManager] =================================")

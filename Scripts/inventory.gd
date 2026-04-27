@@ -5,8 +5,8 @@ const SLOT_COUNT: int = 4
 
 signal slot_changed(slot: int, item: Item)
 signal active_slot_changed(slot: int)
-signal item_equipped(item: Item)      # ← ДОБАВИТЬ
-signal item_unequipped()              # ← ДОБАВИТЬ
+signal item_equipped(item: Item)
+signal item_unequipped()
 
 var _slots: Array[Item] = []
 var _active_slot: int = 0
@@ -19,19 +19,18 @@ func _ready() -> void:
 func setup(player: Player) -> void:
 	_player = player
 
-# =====================================================
-#  ДОБАВЛЕНИЕ / УДАЛЕНИЕ
-# =====================================================
-
 func add_item(item: Item) -> bool:
 	for i in range(SLOT_COUNT):
 		if _slots[i] == null:
 			_slots[i] = item
 			slot_changed.emit(i, item)
 			
-			# Если это первый предмет — автоматически экипируем
 			if get_total_items() == 1:
-				set_active_slot(i)
+				_active_slot = i
+				active_slot_changed.emit(i)
+				if _player:
+					item.on_equip(_player)
+					item_equipped.emit(item)
 			
 			print("[Inventory] Added ", item.display_name, " to slot ", i + 1)
 			return true
@@ -47,10 +46,13 @@ func remove_item(item: Item) -> void:
 			
 			if was_active:
 				_unequip_current()
-				# Найти следующий непустой слот
 				for j in range(SLOT_COUNT):
 					if _slots[j] != null:
-						set_active_slot(j)
+						_active_slot = j
+						active_slot_changed.emit(j)
+						if _player:
+							_slots[j].on_equip(_player)
+							item_equipped.emit(_slots[j])
 						break
 			
 			print("[Inventory] Removed from slot ", i + 1)
@@ -72,21 +74,15 @@ func _unequip_current() -> void:
 		item.on_unequip(_player)
 	item_unequipped.emit()
 
-# =====================================================
-#  ПЕРЕКЛЮЧЕНИЕ СЛОТОВ
-# =====================================================
-
 func set_active_slot(slot: int) -> void:
 	if slot < 0 or slot >= SLOT_COUNT:
 		return
 	
-	# Снимаем экипировку со старого слота
 	_unequip_current()
 	
 	_active_slot = slot
 	active_slot_changed.emit(slot)
 	
-	# Экипируем предмет из нового слота
 	var item = _slots[slot]
 	if item and _player:
 		item.on_equip(_player)
@@ -100,19 +96,14 @@ func next_slot() -> void:
 func prev_slot() -> void:
 	set_active_slot((_active_slot - 1 + SLOT_COUNT) % SLOT_COUNT)
 
-# =====================================================
-#  ИСПОЛЬЗОВАНИЕ
-# =====================================================
-
 func use_active_item() -> bool:
 	var item = _slots[_active_slot]
+	print("[Inventory] use_active_item() slot: ", _active_slot, " item: ", item)
 	if item and _player:
+		print("[Inventory] calling on_use() on ", item.display_name)
 		return item.on_use(_player)
+	print("[Inventory] no item to use")
 	return false
-
-# =====================================================
-#  ГЕТТЕРЫ
-# =====================================================
 
 func get_item(slot: int) -> Item:
 	if slot < 0 or slot >= SLOT_COUNT:
@@ -148,3 +139,21 @@ func clear() -> void:
 		slot_changed.emit(i, null)
 	_active_slot = 0
 	active_slot_changed.emit(0)
+
+func get_empty_disk() -> DiskItem:
+	for item in _slots:
+		if item is DiskItem and (item as DiskItem).is_empty():
+			return item as DiskItem
+	return null
+
+func get_filled_disk() -> DiskItem:
+	for item in _slots:
+		if item is DiskItem and (item as DiskItem).is_filled():
+			return item as DiskItem
+	return null
+
+func get_first_disk() -> DiskItem:
+	for item in _slots:
+		if item is DiskItem:
+			return item as DiskItem
+	return null

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="NoteItem" format=3 uid="uid://ccjkoihq2gnff"]
+
+[ext_resource type="Texture2D" uid="uid://dwj78osa0r8pv" path="res://Textures/Tile_lab_32.png" id="1_m4rww"]
+[ext_resource type="PackedScene" uid="uid://dvtgkee614koi" path="res://Objects/items/manual.tscn" id="2_m0fw1"]
+[ext_resource type="Script" uid="uid://d151oamrksnjd" path="res://Objects/items/manual.gd" id="3_0246e"]
+
+[resource]
+script = ExtResource("3_0246e")
+id = "2"
+display_name = "Manual"
+icon = ExtResource("1_m4rww")
+scene = ExtResource("2_m0fw1")

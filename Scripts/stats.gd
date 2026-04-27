@@ -1,9 +1,8 @@
 extends Control
 
 @onready var day_label: Label = $Panel/VBoxContainer/DayLabel
-@onready var progress_label: Label = $Panel/VBoxContainer/ProgressLabel
-@onready var normal_label: Label = $Panel/VBoxContainer/NormalLabel
-@onready var rare_label: Label = $Panel/VBoxContainer/RareLabel
+@onready var quota_label: Label = $Panel/VBoxContainer/QuotaLabel
+@onready var score_label: Label = $Panel/VBoxContainer/ScoreLabel
 @onready var progress_bar: ProgressBar = $Panel/VBoxContainer/ProgressBar
 
 func _ready() -> void:
@@ -17,20 +16,19 @@ func refresh() -> void:
 	
 	day_label.text = "DAY " + str(progress["day"])
 	
-	var normal_done = progress["normal_completed"]
-	var normal_req = progress["normal_required"]
-	var rare_done = progress["rare_completed"]
-	var rare_req = progress["rare_required"]
+	var score = progress["score"]
+	var quota = progress["quota"]
+	var remaining = quota - score
 	
-	normal_label.text = "Normal sites: " + str(normal_done) + " / " + str(normal_req)
-	rare_label.text = "Rare sites: " + str(rare_done) + " / " + str(rare_req)
+	quota_label.text = "QUOTA: " + str(quota) + " pts"
+	score_label.text = str(score) + " / " + str(quota)
 	
-	var total_done = normal_done + rare_done
-	var total_req = normal_req + rare_req
+	progress_bar.max_value = quota
+	progress_bar.value = score
 	
-	progress_label.text = "Progress: " + str(total_done) + " / " + str(total_req)
-	progress_bar.max_value = total_req
-	progress_bar.value = total_done
-	
-	if total_done >= total_req:
-		progress_label.text += " - DAY COMPLETE!"
+	if remaining <= 0:
+		score_label.text += " — COMPLETE!"
+		score_label.add_theme_color_override("font_color", Color.GREEN)
+	else:
+		score_label.text += " — " + str(remaining) + " pts remaining"
+		score_label.add_theme_color_override("font_color", Color.WHITE)

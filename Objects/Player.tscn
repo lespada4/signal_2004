@@ -67,6 +67,7 @@ far = 25.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Campivot/Camera3D" unique_id=409028514]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.23864406)
+visible = false
 mesh = SubResource("QuadMesh_8r7yd")
 surface_material_override/0 = SubResource("ShaderMaterial_yk4ok")
 

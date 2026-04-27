@@ -65,8 +65,6 @@ func _process(delta: float) -> void:
 	# Активная фаза
 	_is_visible = _is_visible_to_player()
 	
-	# Звуковой радиус (для атмосферы)
-	player.update_terror_radius(global_position)
 	
 	# Влияние на рассудок ТОЛЬКО если виден
 	if _is_visible:

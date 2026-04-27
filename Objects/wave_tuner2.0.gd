@@ -4,8 +4,24 @@ extends Control
 #  NODES
 # =====================================================
 @onready var graph_area = $GraphArea
-@onready var ref_line = $GraphArea/ReferenceLine
-@onready var player_line = $GraphArea/PlayerLine
+
+@onready var freq_slider: VSlider = $Control/Panel3/MarginContainer/HBoxContainer/FreqSlider
+@onready var freq_label: Label = $Control/Panel3/MarginContainer/HBoxContainer/FreqSlider/FreqLabel
+@onready var amp_slider: VSlider = $Control/Panel3/MarginContainer/HBoxContainer/AmpSlider
+@onready var amp_label: Label = $Control/Panel3/MarginContainer/HBoxContainer/AmpSlider/AmpLabel
+
+# =====================================================
+#  EQUALIZER
+# =====================================================
+@export_group("Equalizer")
+@export var bar_count: int = 40
+@export var bar_width: float = 8.0
+@export var bar_gap: float = 2.0
+@export var ref_color: Color = Color.ORANGE
+@export var player_color: Color = Color.CYAN
+
+var _ref_bars: Array[ColorRect] = []
+var _player_bars: Array[ColorRect] = []
 
 # =====================================================
 #  GAME STATE
@@ -47,20 +63,9 @@ var player_speed: float = 1.0
 # =====================================================
 #  CONSTANTS
 # =====================================================
-const POINTS: int = 100
 const WIN_THRESHOLD: float = 20.0
 const FREQ_STEP: float = 0.05
 const AMP_STEP: float = 1.0
-
-const AMP_INPUT_SPEED_NORMAL: float = 35.0
-const FREQ_INPUT_SPEED_NORMAL: float = 8.0
-const SPEED_FAST_MULTIPLIER: float = 2.5
-const SPEED_SLOW_MULTIPLIER: float = 0.4
-
-# =====================================================
-#  LINE CONTROL
-# =====================================================
-@export var line_margin: float = 20.0
 
 # =====================================================
 #  SIGNALS
@@ -72,13 +77,67 @@ signal level_completed(level_id: int, reward: String)
 #  LIFECYCLE
 # =====================================================
 func _ready() -> void:
+	_setup_equalizer()
+	_setup_sliders()
 	await get_tree().process_frame
 	_load_random_level()
 	resized.connect(_on_control_resize)
 
+func _setup_sliders() -> void:
+	# Частота
+	freq_slider.min_value = 0.5
+	freq_slider.max_value = 3.5
+	freq_slider.step = FREQ_STEP
+	freq_slider.value = player_freq
+	freq_slider.value_changed.connect(_on_freq_changed)
+	
+	# Амплитуда
+	amp_slider.min_value = 10.0
+	amp_slider.max_value = 80.0
+	amp_slider.step = AMP_STEP
+	amp_slider.value = player_amp
+	amp_slider.value_changed.connect(_on_amp_changed)
+	
+	_update_labels()
+
+func _on_freq_changed(value: float) -> void:
+	player_freq = value
+	_update_labels()
+
+func _on_amp_changed(value: float) -> void:
+	player_amp = value
+	_update_labels()
+
+func _update_labels() -> void:
+	if freq_label:
+		freq_label.text = "%.2f" % player_freq
+	if amp_label:
+		amp_label.text = "%.0f" % player_amp
+
+func _setup_equalizer() -> void:
+	for child in graph_area.get_children():
+		child.queue_free()
+	
+	_ref_bars.clear()
+	_player_bars.clear()
+	
+	for i in range(bar_count):
+		var ref_bar = ColorRect.new()
+		ref_bar.color = ref_color
+		ref_bar.size.x = bar_width
+		graph_area.add_child(ref_bar)
+		_ref_bars.append(ref_bar)
+		
+		var player_bar = ColorRect.new()
+		player_bar.color = player_color
+		player_bar.modulate.a = 0.7
+		player_bar.size.x = bar_width * 0.6
+		graph_area.add_child(player_bar)
+		_player_bars.append(player_bar)
+
 func _on_control_resize() -> void:
 	if is_active or game_won:
-		_draw_lines()
+		_draw_equalizer()
 
 func _process(delta: float) -> void:
 	if not is_active or game_won:
@@ -87,46 +146,11 @@ func _process(delta: float) -> void:
 	if graph_area.size.x <= 0 or graph_area.size.y <= 0:
 		return
 
-	_handle_input(delta)
-
 	time_ref += delta * ref_speed
 	time_player += delta * player_speed
 
-	_draw_lines()
+	_draw_equalizer()
 	_check_win(delta)
-
-func _get_current_speed_multiplier() -> float:
-	if Input.is_action_pressed("sprint"):
-		return SPEED_FAST_MULTIPLIER
-	elif Input.is_action_pressed("walk"):
-		return SPEED_SLOW_MULTIPLIER
-	else:
-		return 1.0
-
-func _handle_input(delta: float) -> void:
-	if not is_active:
-		return
-
-	var speed_mult = _get_current_speed_multiplier()
-	var changed = false
-
-	if Input.is_action_pressed("ui_up"):
-		player_amp += AMP_STEP * AMP_INPUT_SPEED_NORMAL * speed_mult * delta
-		changed = true
-	if Input.is_action_pressed("ui_down"):
-		player_amp -= AMP_STEP * AMP_INPUT_SPEED_NORMAL * speed_mult * delta
-		changed = true
-
-	if Input.is_action_pressed("ui_right"):
-		player_freq += FREQ_STEP * FREQ_INPUT_SPEED_NORMAL * speed_mult * delta
-		changed = true
-	if Input.is_action_pressed("ui_left"):
-		player_freq -= FREQ_STEP * FREQ_INPUT_SPEED_NORMAL * speed_mult * delta
-		changed = true
-
-	if changed:
-		player_amp = clamp(player_amp, 10.0, 80.0)
-		player_freq = clamp(player_freq, 0.5, 3.5)
 
 # =====================================================
 #  LEVEL MANAGEMENT
@@ -139,14 +163,16 @@ func _load_random_level() -> void:
 	ref_freq = current_preset["freq"]
 	ref_amp = current_preset["amp"]
 
-	player_line.visible = true
-
 	time_ref = 0.0
 	time_player = 0.0
 	win_timer = 0.0
 
 	player_freq = 0.5
 	player_amp = 10.0
+	
+	# Обновляем слайдеры
+	freq_slider.value = player_freq
+	amp_slider.value = player_amp
 
 	print("=== СЛУЧАЙНЫЙ УРОВЕНЬ ===")
 	print("ID: ", current_level_index + 1)
@@ -154,7 +180,7 @@ func _load_random_level() -> void:
 	print("Награда: диск (", current_preset["reward"], ")")
 	
 	await get_tree().process_frame
-	_draw_lines()
+	_draw_equalizer()
 
 func _has_empty_disk() -> bool:
 	var player = get_tree().get_first_node_in_group("player")
@@ -172,7 +198,6 @@ func _show_no_disk_warning() -> void:
 	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(label)
 	
-	# Удаляем через 3 секунды
 	await get_tree().create_timer(3.0).timeout
 	if is_instance_valid(label):
 		label.queue_free()
@@ -182,7 +207,6 @@ func _give_reward(reward_type: String) -> void:
 		print("[WaveTuner] ⚠️ No empty disk! Use Disk Cleaner first!")
 		_show_no_disk_warning()
 		game_won = true
-		player_line.visible = false
 		return
 	
 	match reward_type:
@@ -207,58 +231,49 @@ func _on_level_completed() -> void:
 	_give_reward(reward)
 	
 	game_won = true
-	player_line.visible = false
 	
 	level_completed.emit(current_level_index, reward)
 	game_completed.emit(reward)
 
 # =====================================================
-#  RENDERING
+#  EQUALIZER RENDERING
 # =====================================================
-func _draw_wave(line_node: Line2D, freq: float, amp: float, time_offset: float) -> void:
-	if not graph_area:
-		return
 
-	var width: float = graph_area.size.x
-	var height: float = graph_area.size.y
-
+func _draw_equalizer() -> void:
+	var width = graph_area.size.x
+	var height = graph_area.size.y
+	var center_y = height / 2.0
+	
 	if width <= 0 or height <= 0:
 		return
-
-	var points = PackedVector2Array()
-	var center_y: float = height / 2.0
-
-	var start_x: float = -line_margin
-	var end_x: float = width + line_margin
-	var step: float = (end_x - start_x) / float(POINTS - 1)
-
-	for i in range(POINTS):
-		var x: float = start_x + i * step
-		var y: float = sin(x * freq * 0.05 + time_offset) * amp
-		points.append(Vector2(x, center_y + y))
-
-	line_node.points = points
-
-func _draw_lines() -> void:
-	_draw_wave(ref_line, ref_freq, ref_amp, time_ref)
-	_draw_wave(player_line, player_freq, player_amp, time_player)
+	
+	var total_width = bar_count * (bar_width + bar_gap)
+	var start_x = (width - total_width) / 2.0
+	
+	for i in range(bar_count):
+		var x = start_x + i * (bar_width + bar_gap)
+		
+		# Эталон
+		var ref_h = abs(sin(i * ref_freq * 0.05 + time_ref)) * ref_amp
+		_ref_bars[i].position = Vector2(x, center_y - ref_h)
+		_ref_bars[i].size.y = ref_h * 2
+		
+		# Игрок
+		var player_h = abs(sin(i * player_freq * 0.05 + time_player)) * player_amp
+		_player_bars[i].position = Vector2(x + bar_width * 0.2, center_y - player_h)
+		_player_bars[i].size.y = player_h * 2
 
 # =====================================================
 #  WIN CONDITION
 # =====================================================
 func _check_win(delta: float) -> void:
-	var ref_points = ref_line.points
-	var player_points = player_line.points
-
-	if ref_points.is_empty() or player_points.is_empty():
-		win_timer = 0.0
-		return
-
 	var max_diff: float = 0.0
-	for i in range(min(ref_points.size(), player_points.size())):
-		var diff_y: float = abs(ref_points[i].y - player_points[i].y)
-		max_diff = max(max_diff, diff_y)
-
+	
+	for i in range(bar_count):
+		var ref_h = _ref_bars[i].size.y
+		var player_h = _player_bars[i].size.y
+		max_diff = max(max_diff, abs(ref_h - player_h))
+	
 	if max_diff < WIN_THRESHOLD:
 		win_timer += delta
 		if win_timer >= WIN_DELAY:
@@ -275,21 +290,21 @@ func reset_game() -> void:
 	player_freq = 0.5
 	player_amp = 10.0
 	player_speed = ref_speed
-
-	player_line.visible = true
-
+	
+	freq_slider.value = player_freq
+	amp_slider.value = player_amp
+	
 	_load_random_level()
-	_draw_lines()
+	_draw_equalizer()
 
 func activate() -> void:
-	# Проверяем, есть ли пустой диск
 	if not _has_empty_disk():
 		print("[WaveTuner] Cannot activate: no empty disk!")
 		_show_no_disk_warning()
 		return
 	
 	is_active = true
-	_draw_lines()
+	_draw_equalizer()
 	print("[WaveTuner] Activated")
 
 func deactivate() -> void:

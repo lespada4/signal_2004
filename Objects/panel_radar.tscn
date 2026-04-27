@@ -48,6 +48,7 @@ remote_path = NodePath("../Camera3D")
 [node name="Camera3D" type="Camera3D" parent="." unique_id=817927266]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 0.9995104, -0.031288646, 0, 0.031288646, 0.9995104, 0, -0.02445376, 1.4914228)
+cull_mask = 1048573
 projection = 1
 size = 1.13
 

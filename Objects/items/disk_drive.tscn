@@ -8,24 +8,22 @@ inner_radius = 0.058
 outer_radius = 0.015
 rings = 16
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_erqjt"]
-noise_type = 3
-frequency = 0.095
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_btrbp"]
-width = 128
-height = 128
-noise = SubResource("FastNoiseLite_erqjt")
-seamless = true
-in_3d_space = true
-as_normal_map = true
-seamless_blend_skirt = 1.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_t8fv4"]
-render_priority = 3
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_deohg"]
+render_priority = 0
 shader = ExtResource("1_deohg")
-shader_parameter/texture_normal = SubResource("NoiseTexture2D_btrbp")
-shader_parameter/normal_depth = 0.05
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/albedo_texture_size = Vector2i(0, 0)
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 1.0
+shader_parameter/metallic_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+shader_parameter/z_clip_scale = 0.01
+shader_parameter/normal_depth = 0.25
 shader_parameter/color_compression = 6.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f1owi"]
@@ -33,20 +31,24 @@ albedo_color = Color(0.5330367, 0.5330367, 0.5330367, 1)
 albedo_texture = ExtResource("2_ktehx")
 metallic = 0.5
 texture_filter = 0
+use_z_clip_scale = true
+z_clip_scale = 0.01
 
 [sub_resource type="BoxMesh" id="BoxMesh_q54n4"]
 material = SubResource("StandardMaterial3D_f1owi")
-size = Vector3(0.24, 0.01, 0.24)
+size = Vector3(0.27, 0.01, 0.25)
 
 [node name="Node3D" type="Node3D" unique_id=1330927967]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=790975950]
 transform = Transform3D(2, 0, 0, 0, 0.015, 0, 0, 0, 2, 0, 0, 0)
+layers = 2
 cast_shadow = 0
 mesh = SubResource("TorusMesh_r0eov")
-surface_material_override/0 = SubResource("ShaderMaterial_t8fv4")
+surface_material_override/0 = SubResource("ShaderMaterial_deohg")
 
 [node name="diskette" type="MeshInstance3D" parent="." unique_id=84438432]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.008780029, 0)
+layers = 2
 cast_shadow = 0
 mesh = SubResource("BoxMesh_q54n4")

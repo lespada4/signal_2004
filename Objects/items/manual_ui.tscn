@@ -1,0 +1,99 @@
+[gd_scene format=3 uid="uid://bplwsy10wfldo"]
+
+[ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="1_7ru6a"]
+[ext_resource type="Texture2D" uid="uid://bs24j8a86wtbx" path="res://Textures/x.png" id="2_m63ku"]
+[ext_resource type="Script" uid="uid://d0hgmvxu4ejbx" path="res://Objects/items/manual_ui.gd" id="2_n8cli"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_7ru6a"]
+font_size = 18
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_m63ku"]
+font_color = Color(0, 0, 0, 1)
+
+[node name="Manual" type="Control" unique_id=1613363177]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -310.0
+offset_top = -322.0
+offset_right = 310.0
+offset_bottom = 322.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_7ru6a")
+script = ExtResource("2_n8cli")
+
+[node name="Panel" type="Panel" parent="." unique_id=303357549]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel" unique_id=2021286234]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer" unique_id=865931360]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Panel/MarginContainer/VBoxContainer" unique_id=605656135]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+text = "MANUAL"
+label_settings = SubResource("LabelSettings_7ru6a")
+vertical_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer" unique_id=448466325]
+layout_mode = 2
+
+[node name="Body" type="Label" parent="Panel/MarginContainer/VBoxContainer" unique_id=1197846520]
+custom_minimum_size = Vector2(0, 400)
+layout_mode = 2
+label_settings = SubResource("LabelSettings_m63ku")
+autowrap_mode = 3
+clip_text = true
+
+[node name="CloseButton" type="Button" parent="Panel" unique_id=664496427]
+modulate = Color(1, 0.07999998, 0.07999998, 1)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -80.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = 80.0
+grow_horizontal = 0
+theme_override_colors/icon_normal_color = Color(18.892157, 18.892157, 18.892157, 1)
+icon = ExtResource("2_m63ku")
+icon_alignment = 1
+
+[node name="NextButton" type="Button" parent="Panel" unique_id=2101289465]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 269.0
+offset_top = -94.0
+offset_right = -269.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 64
+text = "<>"

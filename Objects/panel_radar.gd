@@ -2,15 +2,15 @@ extends StaticBody3D
 class_name BrowserTerminal
 
 enum TerminalMode {
-	GAME,           # Мини-игра (WaveTuner)
-	FLASH_DRIVE,    # Приём дисков
-	STATS           # Статистика дня
+	GAME,
+	FLASH_DRIVE,
+	STATS
 }
 
 @export var mode: TerminalMode = TerminalMode.FLASH_DRIVE
-@export var ui_scene: PackedScene          # ArticlePage или WaveTuner
-@export var no_flash_drive_scene: PackedScene  # NoFlashDriveScene
-@export var stats_scene: PackedScene       # StatsScene
+@export var ui_scene: PackedScene
+@export var no_flash_drive_scene: PackedScene
+@export var stats_scene: PackedScene
 @export var viewport_size: Vector2 = Vector2(1920, 1080)
 @export var monitor_camera: Camera3D
 @export var exit_key: Key = KEY_ESCAPE
@@ -42,7 +42,6 @@ func _ready():
 	self.input_event.connect(_on_input_event)
 	_update_plane()
 	
-	# Подключаем сигналы только для режима дисков
 	if mode == TerminalMode.FLASH_DRIVE and DiskManager:
 		DiskManager.disk_inserted.connect(_on_disk_inserted)
 
@@ -147,28 +146,23 @@ func _on_input_event(_camera: Node, event: InputEvent, _event_position: Vector3,
 
 func _world_to_viewport(world_pos: Vector3) -> Vector2:
 	var local_pos = screen_mesh.global_transform.affine_inverse() * world_pos
-	
 	var uv = Vector2(
 		(local_pos.x / mesh_size.x) + 0.5,
 		0.5 - (local_pos.y / mesh_size.y)
 	)
-	
 	return Vector2(uv.x * viewport.size.x, uv.y * viewport.size.y)
 
 func _fade_to_black():
 	if fade_tween and fade_tween.is_running():
 		fade_tween.kill()
-	
 	fade_tween = create_tween()
 	fade_tween.tween_property(fade_overlay, "modulate", Color.BLACK, fade_duration)
 	is_screen_on = false
-	
 	await fade_tween.finished
 
 func _fade_to_clear():
 	if fade_tween and fade_tween.is_running():
 		fade_tween.kill()
-	
 	fade_tween = create_tween()
 	fade_tween.tween_property(fade_overlay, "modulate", Color(0, 0, 0, 0), fade_duration)
 	is_screen_on = true
@@ -181,41 +175,32 @@ func _clear_viewport():
 func _load_scene(scene: PackedScene) -> Control:
 	if not scene:
 		return null
-	
 	var instance = scene.instantiate()
 	viewport.add_child(instance)
-	
 	if instance is Control:
 		instance.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	
 	viewport.move_child(fade_overlay, viewport.get_child_count())
-	
 	return instance
 
 func _load_default_ui():
 	_clear_viewport()
 	ui_instance = _load_scene(ui_scene)
-	
 	if ui_instance and ui_instance.has_method("activate"):
 		ui_instance.activate()
 
 func _load_site(site: PageContent):
 	_clear_viewport()
 	ui_instance = _load_scene(ui_scene)
-	
 	if not ui_instance:
 		return
-	
 	if ui_instance.has_method("update_content"):
 		ui_instance.update_content(site)
 	elif ui_instance.has_method("_apply_content"):
 		ui_instance._apply_content(site)
 	elif ui_instance.get("content") != null:
 		ui_instance.content = site
-	
 	if DiskManager:
 		DiskManager.confirm_site_loaded()
-		print("[BrowserTerminal] Site confirmed loaded")
 
 func _on_disk_inserted(site: PageContent):
 	if is_active and mode == TerminalMode.FLASH_DRIVE:
@@ -225,7 +210,6 @@ func _on_disk_inserted(site: PageContent):
 func activate_terminal(camera: Node):
 	if _disabled:
 		return
-		
 	if camera is Camera3D:
 		player_camera = camera
 	
@@ -235,19 +219,14 @@ func activate_terminal(camera: Node):
 			ui_instance = _load_scene(ui_scene)
 			if ui_instance and ui_instance.has_method("activate"):
 				ui_instance.activate()
-				
 		TerminalMode.STATS:
 			_clear_viewport()
 			ui_instance = _load_scene(stats_scene)
 			if ui_instance and ui_instance.has_method("refresh"):
 				ui_instance.refresh()
-				
 		TerminalMode.FLASH_DRIVE:
 			if DiskManager and DiskManager.get_current_site():
 				_load_site(DiskManager.get_current_site())
-			elif DiskManager and DiskManager.has_disk_inserted():
-				# Диск вставлен, но сайт ещё не сгенерирован? Ждём сигнала
-				pass
 			else:
 				_clear_viewport()
 				ui_instance = _load_scene(no_flash_drive_scene)
@@ -256,25 +235,22 @@ func activate_terminal(camera: Node):
 		player.set_shader_visible(false)
 	elif player.get("shader"):
 		player.shader.visible = false
-	
 	if aim_ui:
 		aim_ui.visible = false
-	
 	if player.has_method("lock_controls"):
 		player.lock_controls()
-	
 	if monitor_camera:
 		_switch_camera(monitor_camera)
 		is_active = true
 		_update_plane()
 		last_viewport_pos = Vector2.ZERO
-	
 	_fade_to_clear()
 
 func exit_terminal():
 	if not is_active:
 		return
 	
+	# Останавливаем дренаж рассудка перед выходом
 	if ui_instance and ui_instance.has_method("deactivate"):
 		ui_instance.deactivate()
 	
@@ -294,15 +270,16 @@ func exit_terminal():
 	
 	if player.has_method("unlock_controls"):
 		player.unlock_controls()
+	
+	if player.has_method("show_ui"):
+		player.show_ui()
 
 func _switch_camera(to_camera: Camera3D):
 	if not to_camera:
 		return
-	
 	var active_camera = get_viewport().get_camera_3d()
 	if active_camera:
 		active_camera.current = false
-	
 	to_camera.current = true
 
 func set_disabled(disabled: bool) -> void:

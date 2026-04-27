@@ -163,7 +163,7 @@ func _get_fallback_article() -> Dictionary:
 #  ГЕНЕРАЦИЯ САЙТА
 # =====================================================
 
-func generate_site(category: SiteCategory) -> PageContent:
+func generate_site(category: SiteCategory, day: int = 1) -> PageContent:
 	_load_all()
 	
 	var article_data = get_random_article(category)
@@ -177,12 +177,68 @@ func generate_site(category: SiteCategory) -> PageContent:
 	content.body = article_data["body"]
 	content.date = _get_random_date()
 	
-	var img = get_random_image(category)
+	_assign_symptoms(content, category, day)
+	
+	# Картинка выбирается случайно, независимо от категории
+	var img = _get_random_image_any()
 	if img:
-		content.image = img
-		content.image_path = SiteCategory.keys()[category].to_lower()
+		content.image = img["texture"]
+		content.image_path = img["path"]
 	
 	return content
+
+func _get_random_image_any() -> Dictionary:
+	_load_all()
+	
+	var all_images: Array[Dictionary] = []
+	
+	for path in _normal_images:
+		all_images.append({"texture": load(path), "path": "normal"})
+	for path in _suspicious_images:
+		all_images.append({"texture": load(path), "path": "suspicious"})
+	for path in _dangerous_images:
+		all_images.append({"texture": load(path), "path": "dangerous"})
+	
+	if all_images.is_empty():
+		return {}
+	
+	return all_images[randi() % all_images.size()]
+
+func _assign_symptoms(site: PageContent, category: SiteCategory, day: int) -> void:
+	var symptom_count: int
+	match category:
+		SiteCategory.NORMAL:
+			symptom_count = 0
+		SiteCategory.SUSPICIOUS:
+			symptom_count = 2
+		SiteCategory.DANGEROUS:
+			symptom_count = 2
+	
+	var all_symptoms: Array[int] = [
+		PageContent.Symptom.ZALGO_LIGHT,
+		PageContent.Symptom.ZALGO_HEAVY,
+		PageContent.Symptom.IMAGE_GLITCH,
+	]
+	
+	if day >= 2:
+		all_symptoms.append(PageContent.Symptom.TEXT_UNSTABLE)
+	
+	if day >= 3:
+		all_symptoms.append(PageContent.Symptom.CPU_ANOMALY)
+	
+	if category == SiteCategory.DANGEROUS:
+		all_symptoms.append(PageContent.Symptom.SANITY_DRAIN_LIGHT)
+		all_symptoms.append(PageContent.Symptom.SANITY_DRAIN_HEAVY)
+	
+	all_symptoms.shuffle()
+	
+	for i in range(min(symptom_count, all_symptoms.size())):
+		site.add_symptom(all_symptoms[i])
+	
+	if site.has_symptom(PageContent.Symptom.ZALGO_HEAVY):
+		site.symptoms.erase(PageContent.Symptom.ZALGO_LIGHT)
+	if site.has_symptom(PageContent.Symptom.SANITY_DRAIN_HEAVY):
+		site.symptoms.erase(PageContent.Symptom.SANITY_DRAIN_LIGHT)
 
 # =====================================================
 #  ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
@@ -205,4 +261,5 @@ func debug_print_site(content: PageContent) -> void:
 	print("Author: ", content.author)
 	print("Category: ", SiteCategory.keys()[content.category])
 	print("Image: ", content.image_path)
+	print("Symptoms: ", content.symptoms.size())
 	print("=================================\n")

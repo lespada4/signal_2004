@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://dvtgkee614koi"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_eh636"]
+size = Vector3(0.27, 0.01, 0.38)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_r7cie"]
+seed = 16
+frequency = 1.0
+offset = Vector3(0.05, 0, 0)
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_7qf2c"]
+width = 1
+height = 24
+noise = SubResource("FastNoiseLite_r7cie")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sbm74"]
+albedo_texture = SubResource("NoiseTexture2D_7qf2c")
+texture_filter = 0
+use_z_clip_scale = true
+z_clip_scale = 0.01
+
+[node name="Node3D" type="Node3D" unique_id=1587681986]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=521944432]
+transform = Transform3D(0.9638488, 0.11591966, -0.239912, -0.12144943, 0.99256295, -0.008342706, 0.23716071, 0.037178274, 0.970759, -0.15302587, 0, 0.3758659)
+layers = 2
+cast_shadow = 0
+mesh = SubResource("BoxMesh_eh636")
+surface_material_override/0 = SubResource("StandardMaterial3D_sbm74")

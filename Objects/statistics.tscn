@@ -17,7 +17,6 @@ color_ramp = SubResource("Gradient_lqvcu")
 seamless_blend_skirt = 0.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_lylaa"]
-font_size = 14
 font_color = Color(0.38928655, 0.38928664, 0.38928658, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_df4xg"]
@@ -77,21 +76,17 @@ theme_override_constants/separation = 37
 layout_mode = 2
 label_settings = SubResource("LabelSettings_lylaa")
 
-[node name="DriveInfo" type="Label" parent="Panel/VBoxContainer" unique_id=2140256239]
+[node name="QuotaLabel" type="Label" parent="Panel/VBoxContainer" unique_id=2140256239]
 layout_mode = 2
 label_settings = SubResource("LabelSettings_df4xg")
 
-[node name="ProgressLabel" type="Label" parent="Panel/VBoxContainer" unique_id=947056074]
-layout_mode = 2
-label_settings = SubResource("LabelSettings_2d0hh")
-
-[node name="NormalLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1813635030]
-layout_mode = 2
-label_settings = SubResource("LabelSettings_2d0hh")
-
-[node name="RareLabel" type="Label" parent="Panel/VBoxContainer" unique_id=402727541]
+[node name="ScoreLabel" type="Label" parent="Panel/VBoxContainer" unique_id=947056074]
 layout_mode = 2
 label_settings = SubResource("LabelSettings_2d0hh")
 
 [node name="ProgressBar" type="ProgressBar" parent="Panel/VBoxContainer" unique_id=768343255]
 layout_mode = 2
+
+[node name="CompletedLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1813635030]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_2d0hh")

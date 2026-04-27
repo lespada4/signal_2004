@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://jlxr1u0fpxqv"
-path="res://.godot/imported/Abstract_Noise_025-256x256.png-d2e623e33d0e2e99ccd652d5892120bc.ctex"
+uid="uid://cyicme3xc1bjj"
+path="res://.godot/imported/DANGEROUS.png-3975ce0da1483eec905fbfca85192839.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Web images/normal/Abstract_Noise_025-256x256.png"
-dest_files=["res://.godot/imported/Abstract_Noise_025-256x256.png-d2e623e33d0e2e99ccd652d5892120bc.ctex"]
+source_file="res://Web images/dang/DANGEROUS.png"
+dest_files=["res://.godot/imported/DANGEROUS.png-3975ce0da1483eec905fbfca85192839.ctex"]
 
 [params]
 

@@ -1,17 +1,13 @@
 extends CharacterBody3D
 class_name Player
 
-## ITEMS
+## UI
+@onready var ui_root: Control = $"../UI"
 @onready var item_holder: Marker3D = $Campivot/Camera3D/ItemHolder
 @onready var sanity_bar: ProgressBar = $"../UI/SanityBar"
 @onready var inventory: Inventory = $Inventory
 
 var current_item_instance: Node3D = null
-
-# =================== Звук врага ===================
-@export var max_hear_distance: float = 20.0
-@onready var terror_radius: AudioStreamPlayer = $AudioStreamPlayer
-@export var max_terror_volume_db: float = -6.0
 
 # =================== Движение ===================
 @export_group("Movement")
@@ -62,7 +58,6 @@ var _attraction_target_visible: bool = false
 
 # =================== Ноды ===================
 @onready var camera: Camera3D = $Campivot/Camera3D
-@onready var camera_pivot: Node3D = $Campivot
 
 # =================== Инициализация ===================
 func _ready() -> void:
@@ -88,6 +83,18 @@ func _ready() -> void:
 	sanity_updated.connect(_on_sanity_updated)
 
 # =====================================================
+#  UI
+# =====================================================
+
+func hide_ui() -> void:
+	if ui_root:
+		ui_root.visible = false
+
+func show_ui() -> void:
+	if ui_root:
+		ui_root.visible = true
+
+# =====================================================
 #  SANITY BAR
 # =====================================================
 
@@ -109,12 +116,10 @@ func _on_sanity_updated(current: float, max_val: float) -> void:
 # =====================================================
 
 func _on_item_equipped(item: Item) -> void:
-	# Сначала убираем старый предмет
 	if current_item_instance:
 		current_item_instance.queue_free()
 		current_item_instance = null
 	
-	# Потом экипируем новый
 	item.on_equip(self)
 	print("[Player] Equipped: ", item.display_name)
 
@@ -125,7 +130,6 @@ func _on_item_unequipped() -> void:
 	print("[Player] Unequipped item")
 
 func show_disk(disk: DiskItem) -> void:
-	# Создаём экземпляр сцены диска
 	if disk.scene:
 		current_item_instance = disk.scene.instantiate()
 		item_holder.add_child(current_item_instance)
@@ -151,8 +155,6 @@ func try_insert_disk(disk: DiskItem) -> bool:
 	if collider is BrowserTerminal:
 		if DiskManager:
 			var success = DiskManager.insert_disk(disk)
-			if success:
-				inventory.remove_item(disk)
 			return success
 	
 	return false
@@ -179,7 +181,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
 		_try_interact()
 	
-	# Переключение слотов инвентаря
 	if event.is_action_pressed("slot_1"):
 		inventory.set_active_slot(0)
 	elif event.is_action_pressed("slot_2"):
@@ -189,17 +190,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("slot_4"):
 		inventory.set_active_slot(3)
 	
-	# Колёсико мыши
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
 			inventory.prev_slot()
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
 			inventory.next_slot()
 	
-	# Использование предмета
 	if event.is_action_pressed("use_item"):
 		inventory.use_active_item()
-
+	if event is InputEventKey and event.pressed:
+		print("[Player] Key pressed: ", event.keycode, " action: use_item=", event.is_action("use_item"))
 # =================== Процесс ===================
 func _process(delta: float) -> void:
 	if controls_locked or _is_dead:
@@ -319,15 +319,11 @@ func _apply_camera_attraction(delta: float) -> void:
 func _try_interact() -> void:
 	if not interaction_shape:
 		return
-
 	interaction_shape.force_shapecast_update()
-
 	var result = interaction_shape.get_collision_result()
 	if result.is_empty():
 		return
-
 	var collider = result[0]["collider"]
-	
 	if collider.has_method("interact"):
 		collider.interact()
 
@@ -397,6 +393,7 @@ func _die() -> void:
 	controls_locked = true
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	
+	hide_ui()
 	_show_death_screen()
 	
 	await get_tree().create_timer(3.0).timeout
@@ -450,14 +447,3 @@ func unlock_controls() -> void:
 
 func is_controls_locked() -> bool:
 	return controls_locked
-
-# =================== Звук врага ===================
-func update_terror_radius(enemy_pos: Vector3) -> void:
-	var dist = global_position.distance_to(enemy_pos)
-	var t = 1.0 - clamp(dist / max_hear_distance, 0.0, 1.0)
-	var target_db = linear_to_db(t)
-	terror_radius.volume_db = clamp(target_db, -80.0, max_terror_volume_db)
-	if t > 0.0 and not terror_radius.playing:
-		terror_radius.play()
-	elif t <= 0.0 and terror_radius.playing:
-		terror_radius.stop()
