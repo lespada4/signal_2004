@@ -1,17 +1,18 @@
 shader_type spatial;
 
-// Glitch intensity
+// Glitch
 uniform float shake_power = 0.5;
-
-// Probability
 uniform float shake_rate : hint_range(0.0, 1.0) = 0.5;
-
 uniform float shake_speed = 5.0;
-
-// Hard to describe, change it and monitor result
 uniform float shake_block_size = 30.5;
-
 uniform float shake_color_rate : hint_range(0.0, 1.0) = 0.5;
+
+// Voxel
+uniform float pixel_size = 32.0;
+
+// Emission
+uniform float glow_intensity = 0.5;
+uniform vec3 glow_color : source_color = vec3(1.0, 0.0, 0.0);
 
 uniform sampler2D main_tex : filter_nearest, source_color;
 
@@ -23,6 +24,9 @@ float random(float seed) {
 
 void vertex() {
 	float adjusted_time = mod(TIME, 5.0);
+	
+	// Voxel effect
+	VERTEX = floor(VERTEX * pixel_size) / pixel_size;
 
     enable_shift = float(random(trunc(adjusted_time * shake_speed)) < shake_rate);
 
@@ -51,4 +55,7 @@ void fragment() {
     );
 
     ALBEDO = pixel_color.rgb;
+    
+    // Emission — мерцающее свечение
+    EMISSION = glow_color * glow_intensity * (0.5 + 0.5 * sin(TIME * 3.0));
 }

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dgrswv6l3u7ii"]
 
 [ext_resource type="Shader" uid="uid://cj5vgg1u1m4mj" path="res://disk.gdshader" id="1_deohg"]
-[ext_resource type="Texture2D" uid="uid://b16cgdl74t1o5" path="res://Web images/sus/Abstract_Noise_026-256x256.png" id="2_ktehx"]
+[ext_resource type="Texture2D" uid="uid://b16cgdl74t1o5" path="res://Web_images/sus/1.png" id="2_ktehx"]
 
 [sub_resource type="TorusMesh" id="TorusMesh_r0eov"]
 inner_radius = 0.058

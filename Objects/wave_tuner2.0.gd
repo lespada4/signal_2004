@@ -84,14 +84,12 @@ func _ready() -> void:
 	resized.connect(_on_control_resize)
 
 func _setup_sliders() -> void:
-	# Частота
 	freq_slider.min_value = 0.5
 	freq_slider.max_value = 3.5
 	freq_slider.step = FREQ_STEP
 	freq_slider.value = player_freq
 	freq_slider.value_changed.connect(_on_freq_changed)
 	
-	# Амплитуда
 	amp_slider.min_value = 10.0
 	amp_slider.max_value = 80.0
 	amp_slider.step = AMP_STEP
@@ -136,20 +134,32 @@ func _setup_equalizer() -> void:
 		_player_bars.append(player_bar)
 
 func _on_control_resize() -> void:
-	if is_active or game_won:
+	_draw_equalizer()
+
+# =====================================================
+#  АНИМАЦИЯ (работает всегда)
+# =====================================================
+
+func _process_equalizer(delta: float) -> void:
+	# Проверяем, есть ли заполненный диск (не в терминале)
+	var player = get_tree().get_first_node_in_group("player")
+	var has_filled_disk = false
+	if player and player.inventory:
+		has_filled_disk = player.inventory.get_filled_disk() != null
+	
+	# Анимация только если нет заполненного диска (ждут записи)
+	if not has_filled_disk and not game_won:
+		time_ref += delta * ref_speed
+		time_player += delta * player_speed
 		_draw_equalizer()
 
+# =====================================================
+#  ПРОЦЕСС (только когда активно)
+# =====================================================
+
 func _process(delta: float) -> void:
-	if not is_active or game_won:
-		return
-	
-	if graph_area.size.x <= 0 or graph_area.size.y <= 0:
-		return
-
-	time_ref += delta * ref_speed
-	time_player += delta * player_speed
-
-	_draw_equalizer()
+	if not is_active or game_won: return
+	if graph_area.size.x <= 0 or graph_area.size.y <= 0: return
 	_check_win(delta)
 
 # =====================================================
@@ -170,7 +180,6 @@ func _load_random_level() -> void:
 	player_freq = 0.5
 	player_amp = 10.0
 	
-	# Обновляем слайдеры
 	freq_slider.value = player_freq
 	amp_slider.value = player_amp
 
@@ -197,14 +206,13 @@ func _show_no_disk_warning() -> void:
 	label.add_theme_color_override("font_color", Color.RED)
 	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(label)
-	
 	await get_tree().create_timer(3.0).timeout
 	if is_instance_valid(label):
 		label.queue_free()
 
 func _give_reward(reward_type: String) -> void:
 	if not _has_empty_disk():
-		print("[WaveTuner] ⚠️ No empty disk! Use Disk Cleaner first!")
+		print("[WaveTuner] No empty disk!")
 		_show_no_disk_warning()
 		game_won = true
 		return
@@ -223,15 +231,11 @@ func _give_reward(reward_type: String) -> void:
 
 func _on_level_completed() -> void:
 	var reward = current_preset["reward"]
-	
 	print("=================================")
 	print("       УРОВЕНЬ ПРОЙДЕН!")
 	print("=================================")
-	
 	_give_reward(reward)
-	
 	game_won = true
-	
 	level_completed.emit(current_level_index, reward)
 	game_completed.emit(reward)
 
@@ -244,8 +248,7 @@ func _draw_equalizer() -> void:
 	var height = graph_area.size.y
 	var center_y = height / 2.0
 	
-	if width <= 0 or height <= 0:
-		return
+	if width <= 0 or height <= 0: return
 	
 	var total_width = bar_count * (bar_width + bar_gap)
 	var start_x = (width - total_width) / 2.0
@@ -253,12 +256,10 @@ func _draw_equalizer() -> void:
 	for i in range(bar_count):
 		var x = start_x + i * (bar_width + bar_gap)
 		
-		# Эталон
 		var ref_h = abs(sin(i * ref_freq * 0.05 + time_ref)) * ref_amp
 		_ref_bars[i].position = Vector2(x, center_y - ref_h)
 		_ref_bars[i].size.y = ref_h * 2
 		
-		# Игрок
 		var player_h = abs(sin(i * player_freq * 0.05 + time_player)) * player_amp
 		_player_bars[i].position = Vector2(x + bar_width * 0.2, center_y - player_h)
 		_player_bars[i].size.y = player_h * 2
@@ -266,6 +267,7 @@ func _draw_equalizer() -> void:
 # =====================================================
 #  WIN CONDITION
 # =====================================================
+
 func _check_win(delta: float) -> void:
 	var max_diff: float = 0.0
 	
@@ -290,18 +292,23 @@ func reset_game() -> void:
 	player_freq = 0.5
 	player_amp = 10.0
 	player_speed = ref_speed
-	
 	freq_slider.value = player_freq
 	amp_slider.value = player_amp
-	
 	_load_random_level()
 	_draw_equalizer()
 
 func activate() -> void:
+	if DailyManager and DailyManager.is_day_completed:
+		print("[WaveTuner] Day completed, terminal locked")
+		return
+	
 	if not _has_empty_disk():
-		print("[WaveTuner] Cannot activate: no empty disk!")
 		_show_no_disk_warning()
 		return
+	
+	# Сбрасываем игру если она была завершена
+	if game_won:
+		reset_game()
 	
 	is_active = true
 	_draw_equalizer()

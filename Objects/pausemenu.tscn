@@ -1,0 +1,115 @@
+[gd_scene format=3 uid="uid://6y0h4bw84a70"]
+
+[ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="1_o5d2n"]
+[ext_resource type="Script" uid="uid://bogm6v01cbi1x" path="res://Scripts/pause.gd" id="2_td2xj"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_fmhng"]
+font_size = 24
+font_color = Color(18.892157, 18.892157, 18.892157, 1)
+shadow_size = 8
+shadow_color = Color(1.831118, 1.831118, 1.831118, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_o5d2n"]
+font_size = 18
+font_color = Color(18.892157, 18.892157, 18.892157, 1)
+shadow_size = 8
+shadow_color = Color(1.831118, 1.831118, 1.831118, 1)
+
+[node name="Control" type="Control" unique_id=796644090]
+modulate = Color(0.16253604, 0.16253604, 0.16253604, 1)
+top_level = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_o5d2n")
+script = ExtResource("2_td2xj")
+
+[node name="Panel" type="Panel" parent="." unique_id=825441593]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.372
+anchor_top = 0.38900003
+anchor_right = 0.628
+anchor_bottom = 0.611
+offset_left = 0.45599365
+offset_top = -0.072021484
+offset_right = -0.4560547
+offset_bottom = 0.07199097
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=666750571]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -133.0
+offset_top = -57.0
+offset_right = 133.0
+offset_bottom = 57.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 19
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer" unique_id=1876805025]
+layout_mode = 2
+text = "PAUSE"
+label_settings = SubResource("LabelSettings_fmhng")
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="Panel/VBoxContainer" unique_id=2010231034]
+custom_minimum_size = Vector2(164, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(4.165, 4.165, 4.165, 1)
+text = "RESUME"
+
+[node name="MainMenuButton" type="Button" parent="Panel/VBoxContainer" unique_id=1451824265]
+custom_minimum_size = Vector2(164, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(4.165, 4.165, 4.165, 1)
+text = "QUIT TO MENU"
+
+[node name="Panel2" type="Panel" parent="." unique_id=77486489]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.372
+anchor_top = 0.61
+anchor_right = 0.628
+anchor_bottom = 0.88400006
+offset_left = 0.45599365
+offset_top = -0.27999878
+offset_right = -0.4560547
+offset_bottom = 0.16796875
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="Panel2" unique_id=1901980265]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -24.0
+offset_top = 20.0
+offset_right = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "
+ЛКМ - ВЗАИМОДЕЙСТВИЕ
+
+
+E [У] - ИСПОЛЬЗОВАТЬ ПРЕДМЕТ 
+(ВСТАВИТЬ ИЛИ ВЫТАЩИТЬ ДИСК)
+(прочитать записку)
+
+S - БЕЗОПАСНАЯ КАРТИНКА
+ШУМЫ - АНОМАЛЬНАЯ
+КРАСНАЯ - ОПАСНАЯ"
+label_settings = SubResource("LabelSettings_o5d2n")
+horizontal_alignment = 1

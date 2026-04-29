@@ -2,19 +2,37 @@ extends Resource
 class_name PageContent
 
 # =====================================================
+#  ВСТРОЕННЫЕ КАРТИНКИ
+# =====================================================
+
+const NORMAL_IMAGES = [
+	preload("res://Web_images/normal/1.png"),
+	preload("res://Web_images/normal/2.png"),
+]
+
+const SUSPICIOUS_IMAGES = [
+	preload("res://Web_images/sus/1.png"),
+	preload("res://Web_images/sus/2.png"),
+]
+
+const DANGEROUS_IMAGES = [
+	preload("res://Web_images/dang/1.png"),
+	preload("res://Web_images/dang/2.png"),
+]
+
+# =====================================================
 #  СИМПТОМЫ
 # =====================================================
 
 enum Symptom {
 	NONE,
-	ZALGO_LIGHT,
-	ZALGO_HEAVY,
-	IMAGE_GLITCH,
+	NORMAL,
+	ZALGO,
+	SANITY_DRAIN,
+	CPU_LOG_DANGEROUS,
 	TEXT_UNSTABLE,
-	SANITY_DRAIN_LIGHT,
-	SANITY_DRAIN_HEAVY,
-	CPU_ANOMALY,
-	BLACKLIST_ELEMENT
+	CPU_LOG_SUSPICIOUS,
+	IMAGE_GLITCH
 }
 
 # =====================================================

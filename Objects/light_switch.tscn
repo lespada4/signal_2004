@@ -1,0 +1,81 @@
+[gd_scene format=3 uid="uid://b4sddc8ui43hj"]
+
+[ext_resource type="Script" uid="uid://cw1h15goamiqw" path="res://Objects/light_switch.gd" id="1_74ofr"]
+[ext_resource type="AudioStream" uid="uid://bqh1mb3kqygy1" path="res://Audio/turn.mp3" id="2_6sxct"]
+[ext_resource type="AudioStream" uid="uid://cu8ftu62y46oe" path="res://Audio/off.mp3" id="3_34b7x"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_s0s2y"]
+size = Vector3(0.05, 0.25, 0.2)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_6sxct"]
+frequency = 0.031
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_34b7x"]
+width = 32
+height = 32
+generate_mipmaps = false
+noise = SubResource("FastNoiseLite_6sxct")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fmgr5"]
+albedo_color = Color(0.4045111, 0.40451115, 0.4045111, 1)
+albedo_texture = SubResource("NoiseTexture2D_34b7x")
+emission_enabled = true
+emission = Color(0.59785277, 0.7505669, 0.6411218, 1)
+emission_energy_multiplier = 0.07
+texture_filter = 0
+
+[sub_resource type="BoxMesh" id="BoxMesh_b20sq"]
+size = Vector3(0.033, 0.15, 0.13)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_b2yrq"]
+frequency = 0.005
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ii2qm"]
+width = 32
+height = 32
+noise = SubResource("FastNoiseLite_b2yrq")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u337i"]
+albedo_color = Color(0.86898494, 0.8689849, 0.8689849, 1)
+albedo_texture = SubResource("NoiseTexture2D_ii2qm")
+emission_enabled = true
+emission = Color(0.59607846, 0.7490196, 0.6392157, 1)
+emission_energy_multiplier = 0.07
+texture_filter = 0
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_74ofr"]
+data = PackedVector3Array(-0.024999999, 0.125, 0.099999994, 0.024999999, 0.125, 0.099999994, -0.024999999, -0.125, 0.099999994, 0.024999999, 0.125, 0.099999994, 0.024999999, -0.125, 0.099999994, -0.024999999, -0.125, 0.099999994, 0.024999999, 0.125, -0.099999994, -0.024999999, 0.125, -0.099999994, 0.024999999, -0.125, -0.099999994, -0.024999999, 0.125, -0.099999994, -0.024999999, -0.125, -0.099999994, 0.024999999, -0.125, -0.099999994, 0.024999999, 0.125, 0.099999994, 0.024999999, 0.125, -0.099999994, 0.024999999, -0.125, 0.099999994, 0.024999999, 0.125, -0.099999994, 0.024999999, -0.125, -0.099999994, 0.024999999, -0.125, 0.099999994, -0.024999999, 0.125, -0.099999994, -0.024999999, 0.125, 0.099999994, -0.024999999, -0.125, -0.099999994, -0.024999999, 0.125, 0.099999994, -0.024999999, -0.125, 0.099999994, -0.024999999, -0.125, -0.099999994, 0.024999999, 0.125, 0.099999994, -0.024999999, 0.125, 0.099999994, 0.024999999, 0.125, -0.099999994, -0.024999999, 0.125, 0.099999994, -0.024999999, 0.125, -0.099999994, 0.024999999, 0.125, -0.099999994, -0.024999999, -0.125, 0.099999994, 0.024999999, -0.125, 0.099999994, -0.024999999, -0.125, -0.099999994, 0.024999999, -0.125, 0.099999994, 0.024999999, -0.125, -0.099999994, -0.024999999, -0.125, -0.099999994)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_74ofr"]
+emission_enabled = true
+emission = Color(0, 0.78, 0.091000095, 1)
+emission_energy_multiplier = 6.01
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_74ofr"]
+
+[node name="Switch" type="StaticBody3D" unique_id=2104975909]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("1_74ofr")
+sound_on = ExtResource("2_6sxct")
+sound_off = ExtResource("3_34b7x")
+
+[node name="Base" type="MeshInstance3D" parent="." unique_id=1304785218]
+mesh = SubResource("BoxMesh_s0s2y")
+surface_material_override/0 = SubResource("StandardMaterial3D_fmgr5")
+
+[node name="Switch_Mesh" type="MeshInstance3D" parent="Base" unique_id=1495780894]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0.02983044, 0, 0)
+mesh = SubResource("BoxMesh_b20sq")
+surface_material_override/0 = SubResource("StandardMaterial3D_u337i")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=696384206]
+shape = SubResource("ConcavePolygonShape3D_74ofr")
+
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=1015448796]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.028004188, 0.10388771, 0)
+material_override = SubResource("StandardMaterial3D_74ofr")
+texture = SubResource("CanvasTexture_74ofr")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=1209677533]
+volume_db = -15.0

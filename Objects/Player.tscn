@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dfxguass7dwj" path="res://Scripts/Player.gd" id="1_8r7yd"]
 [ext_resource type="Shader" uid="uid://bbf4xgucu6u05" path="res://Shader/PSXPost.gdshader" id="2_n6db0"]
+[ext_resource type="AudioStream" uid="uid://cd20lf5e3pqtf" path="res://Audio/842187__aardsreal__footstep-leaves-2.wav" id="3_i4q3a"]
+[ext_resource type="AudioStream" uid="uid://dd5k2r15mh7k0" path="res://Audio/268758__deleted_user_5093904__footsteps.wav" id="5_qwt6c"]
 [ext_resource type="Script" uid="uid://bm0wef537wujq" path="res://Scripts/inventory.gd" id="5_t1tke"]
 [ext_resource type="Shader" uid="uid://brhootcg454j6" path="res://Shader/pixeliz.gdshader" id="5_u60sl"]
 
@@ -21,9 +23,6 @@ shader_parameter/fog_distance = 13.50000059375
 shader_parameter/fog_fade_range = 6.0000002375
 shader_parameter/enable_noise = false
 shader_parameter/noise_time_fac = 0.10000000149012
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_8r7yd"]
-radius = 0.1
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_u60sl"]
 shader = ExtResource("5_u60sl")
@@ -47,19 +46,21 @@ shader_parameter/viewport_size_override = Vector2(640, 320)
 
 [node name="Player" type="CharacterBody3D" unique_id=796169799 groups=["player"]]
 script = ExtResource("1_8r7yd")
-max_hear_distance = 10.0
-max_terror_volume_db = -16.0
 walk_speed = 6.0
+footstep_carpet = Array[AudioStream]([ExtResource("3_i4q3a")])
+footstep_tile = Array[AudioStream]([ExtResource("5_qwt6c")])
+footstep_interval = 0.5
 bob_amount = 0.1
+sanity_drain_rate = 1.0
 attraction_radius = 10.0
-attraction_strength = 0.8
+attraction_strength = 3.0
 attraction_max_angle = 50.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1870890099]
 shape = SubResource("CapsuleShape3D_n6db0")
 
 [node name="Campivot" type="Node3D" parent="." unique_id=1537547167]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.56189775, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49634546, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Campivot" unique_id=229597438]
 current = true
@@ -67,14 +68,12 @@ far = 25.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Campivot/Camera3D" unique_id=409028514]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.23864406)
-visible = false
 mesh = SubResource("QuadMesh_8r7yd")
 surface_material_override/0 = SubResource("ShaderMaterial_yk4ok")
 
-[node name="Interaction_Ray" type="ShapeCast3D" parent="Campivot/Camera3D" unique_id=540766702]
-shape = SubResource("SphereShape3D_8r7yd")
+[node name="Interaction_Ray" type="RayCast3D" parent="Campivot/Camera3D" unique_id=323490423]
 target_position = Vector3(0, 0, -2)
-collision_mask = 2
+collision_mask = 3
 collide_with_areas = true
 
 [node name="ItemHolder" type="Marker3D" parent="Campivot/Camera3D" unique_id=1493964300]
@@ -84,9 +83,8 @@ transform = Transform3D(0.96882147, -0.19697116, 0.150291, 0.24776001, 0.7702207
 target_position = Vector3(0, 0, -2)
 collision_mask = 2
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=630933733]
-volume_db = -9.454
-pitch_scale = 0.2
+[node name="FootstepPlayer" type="AudioStreamPlayer" parent="." unique_id=630933733]
+volume_db = -10.0
 
 [node name="Shader" type="TextureRect" parent="." unique_id=336656528]
 material = SubResource("ShaderMaterial_u60sl")

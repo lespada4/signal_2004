@@ -1,36 +1,116 @@
 extends Item
 class_name NoteItem
 
-@export_multiline var page1_text: String = """FIELD MANUAL v1.0 - RULES
+@export_multiline var page1_text: String = ""
+@export_multiline var page2_text: String = ""
 
-TODAY'S CRITERIA:
-- Author must be in whitelist
-- Date must be before 2015
-- Domain must be civilian
-- Image must not be corrupted"""
+const DAY_TEXTS = {
+	1: {
+		"page1": "FIELD MANUAL v1.0 - DAY 1
 
-@export_multiline var page2_text: String = """FIELD MANUAL v1.0 - REFERENCES
+КРИТЕРИИ АНАЛИЗА:
 
-WHITELIST — Trusted Authors:
-• Dr. Sarah Chen, PhD
-• Marcus Webb
-• Elena Vasquez
-• Prof. James Morrison
+ОПАСНЫЕ ПРИЗНАКИ:
+☐ Zalgo искажение
+☐ Утечка рассудка
 
-BLACKLIST — Anomalous Dates:
-• 2012 — First Wave
-• 2013 — The Silence
-• 2020 — Echo Anomaly
+ПОДОЗРИТЕЛЬНЫЕ ПРИЗНАКИ:
+☐ Глитч изображения
+☐ Текст меняется при ОБНОВЛЕНИИ
 
-SUSPICIOUS DOMAINS:
-• .mil — Military (RESTRICTED)
-• .onion — Dark web (DANGER)
-• .local — Internal (SUSPICIOUS)"""
+ФОРМУЛА:
+1+ ОПАСНЫЙ признак = ОПАСНЫЙ
+1+ ПОДОЗРИТЕЛЬНЫЙ (без опасных) = ПОДОЗРИТЕЛЬНЫЙ
+Нет признаков = НОРМАЛЬНЫЙ
+
+Блек-листов сегодня нет.",
+		
+		"page2": "FIELD MANUAL v1.0 - DAY 1
+
+СПРАВОЧНИК:
+
+Все авторы и домены разрешены.
+
+АНОМАЛЬНЫЕ ДАТЫ:
+Даты после 2011 — подозрительны."
+	},
+	2: {
+		"page1": "FIELD MANUAL v1.0 - DAY 2
+
+КРИТЕРИИ АНАЛИЗА:
+
+ОПАСНЫЕ ПРИЗНАКИ:
+☐ Zalgo искажение
+☐ Утечка рассудка
+
+ПОДОЗРИТЕЛЬНЫЕ ПРИЗНАКИ:
+☐ Глитч изображения
+☐ Текст меняется при ОБНОВЛЕНИИ
+
+БЛЕК-ЛИСТ:
+Авторы: Redto Phil, Kyle Saren, Sc44m, Zorro Rumi
+Домены: .ab, .??, .end, .brk
+
+ФОРМУЛА:
+1+ ОПАСНЫЙ = ОПАСНЫЙ
+1+ элемент блек-листа = ПОДОЗРИТЕЛЬНЫЙ",
+		
+		"page2": "FIELD MANUAL v1.0 - DAY 2
+
+БЛЕК-ЛИСТ:
+• Redto Phil, Kyle Saren
+• Sc44m, Zorro Rumi
+• Домены: .ab, .??, .end, .brk
+
+АНОМАЛЬНЫЕ ДАТЫ: 2012+"
+	},
+	3: {
+		"page1": "FIELD MANUAL v1.0 - DAY 3
+
+КРИТЕРИИ АНАЛИЗА:
+
+ОПАСНЫЕ ПРИЗНАКИ:
+☐ Zalgo искажение
+☐ Утечка рассудка
+
+ПОДОЗРИТЕЛЬНЫЕ ПРИЗНАКИ:
+☐ Глитч изображения
+☐ Текст меняется при ОБНОВЛЕНИИ
+☐ Аномалии в ЛОГАХ
+
+БЛЕК-ЛИСТ:
+Авторы: Dr. Ganium, Abime Historia, Contained Jeremy, Arsi, Shiro, Jay Gail
+Домены: .!!, ...
+
+ДИАГНОСТИКА ЛОГОВ:
+Высокая температура CPU, повреждённая RAM, странная сеть",
+		
+		"page2": "FIELD MANUAL v1.0 - DAY 3
+
+БЛЕК-ЛИСТ:
+• Dr. Ganium, Abime Historia
+• Contained Jeremy, Arsi, Shiro, Jay Gail
+• Домены: .!!, ...
+
+АНОМАЛЬНЫЕ ДАТЫ: 2012+
+
+ИНДИКАТОРЫ ЛОГОВ:
+ПОДОЗРИТЕЛЬНЫЙ: Высокая температура, вентилятор на максимум
+ОПАСНЫЙ: Повреждённая RAM, рекурсивная сеть"
+	}
+}
 
 var _manual_ui: ManualUI = null
 var _is_manual_open: bool = false
 
+func _load_texts_for_day() -> void:
+	var day = DailyManager.current_day if DailyManager else 1
+	var texts = DAY_TEXTS.get(day, DAY_TEXTS[1])
+	page1_text = texts["page1"]
+	page2_text = texts["page2"]
+
 func on_equip(player: Player) -> void:
+	_load_texts_for_day()
 	if scene:
 		var instance = scene.instantiate()
 		player.item_holder.add_child(instance)
@@ -55,6 +135,8 @@ func on_use(player: Player) -> bool:
 func _open_manual(player: Player) -> void:
 	if _is_manual_open or (_manual_ui and is_instance_valid(_manual_ui)):
 		return
+	
+	_load_texts_for_day()
 	
 	var ui_scene = load("res://Objects/items/manual_ui.tscn")
 	_manual_ui = ui_scene.instantiate()

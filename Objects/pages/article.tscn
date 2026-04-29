@@ -28,6 +28,17 @@ font_size = 34
 font_color = Color(0, 0, 0, 1)
 outline_color = Color(0, 0, 0, 1)
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_75vt2"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_8hctb"]
+width = 32
+height = 32
+noise = SubResource("FastNoiseLite_75vt2")
+
+[sub_resource type="LabelSettings" id="LabelSettings_8hctb"]
+font_size = 24
+font_color = Color(0, 0, 0, 1)
+
 [node name="Article" type="Control" unique_id=630103945]
 custom_minimum_size = Vector2(1024, 1024)
 layout_mode = 3
@@ -108,7 +119,7 @@ offset_bottom = 9.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = -176
-theme_override_constants/margin_top = 48
+theme_override_constants/margin_top = 23
 theme_override_constants/margin_right = 52
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer" unique_id=1318095982]
@@ -162,11 +173,13 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -100.0
-offset_top = -104.0
+offset_top = -100.0
 offset_right = 100.0
-offset_bottom = 104.0
+offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(100, 100)
+texture = SubResource("NoiseTexture2D_8hctb")
 
 [node name="Panel2" type="Panel" parent="." unique_id=996373648]
 layout_mode = 1
@@ -275,3 +288,395 @@ theme_override_constants/margin_bottom = 16
 [node name="Label" type="Label" parent="LogPanel/MarginContainer" unique_id=1531932296]
 custom_minimum_size = Vector2(256, 550)
 layout_mode = 2
+text = "Godot Engine v4.6.2.stable.steam.71f334935 - https://godotengine.org
+D3D12 12_0 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce GTX 1660 SUPER
+
+[DailyManager] Ready
+[DiskManager] Ready
+[InventoryUI] Found Slot1
+[InventoryUI] Found Slot2
+[InventoryUI] Found Slot3
+[InventoryUI] Found Slot4
+[SanityRestore] Found NoiseTexture2D from sprite texture
+[SanityRestore] EnemyManager found
+[SanityRestore] Ready
+[DiskDispenser] Ready
+[DiskCleaner] Ready
+[EnemyManager] Ready
+
+[DailyManager] ╔══════════════════════════════════════════════╗
+[DailyManager] ║              DAY 1 STARTED                 ║
+[DailyManager] ╚══════════════════════════════════════════════╝
+[DailyManager]
+[DailyManager] 📊 DAILY QUOTA: 50 points
+[DailyManager]    NORMAL: +25 / -10
+[DailyManager]    SUSPICIOUS: +40 / -25
+[DailyManager]    DANGEROUS: +60 / -40
+[DailyManager]    BLACKLIST missed: -50% pts
+[DailyManager]
+[DailyManager] 📋 BLACKLIST:
+[DailyManager]    Authors: Redto Phil, Kyle Saren
+[DailyManager]    Domains: .ab, .??
+[DailyManager]    Dates: 2012+
+[DailyManager]
+[DailyManager] 🔄 Generating 4 sites...
+[DailyManager] Generating site for day: 1
+[ContentGenerator] Loaded:
+  Normal: 1 images, 3 articles
+  Suspicious: 2 images, 0 articles
+  Dangerous: 1 images, 0 articles
+[ContentGenerator] WARNING: No articles for category SUSPICIOUS
+[DailyManager] Site symptoms: [5, 2]
+[DailyManager]    1. Missing Article (SUSPICIOUS)
+[DailyManager] Generating site for day: 1
+[ContentGenerator] WARNING: No articles for category DANGEROUS
+[DailyManager] Site symptoms: [2]
+[DailyManager]    2. Missing Article (DANGEROUS)
+[DailyManager] Generating site for day: 1
+[ContentGenerator] WARNING: No articles for category SUSPICIOUS
+[DailyManager] Site symptoms: [3]
+[DailyManager]    3. Missing Article (NORMAL)
+[DailyManager] Generating site for day: 1
+[ContentGenerator] WARNING: No articles for category SUSPICIOUS
+[DailyManager] Site symptoms: [1]
+[DailyManager]    4. Missing Article (NORMAL)
+[DiskDispenser] Items ready - Day 1
+[EnemyManager] Lights node: Lights:<Node3D#91167393755>
+[EnemyManager] Lights children count: 6
+[EnemyManager] Found 0 terminals
+[EnemyManager] Environment transitioning to NORMAL
+[InventoryUI] Set label 0 to '1'
+[InventoryUI] Set label 1 to '2'
+[InventoryUI] Set label 2 to '3'
+[InventoryUI] Set label 3 to '4'
+[InventoryUI] Ready
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 65 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[DiskDispenser] interact() called
+[Player] Disk equipped: blue
+[Player] Disk equipped: blue
+[Player] Equipped: 
+[Inventory] Added  to slot 1
+[DiskManager] Awarded empty disk
+[Inventory] Added Manual to slot 2
+[DiskDispenser] Disk and manual dispensed!
+[Player] Key pressed: 68 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[WaveTuner] Activated
+=== СЛУЧАЙНЫЙ УРОВЕНЬ ===
+ID: 4
+Частота: 1.2, Амплитуда: 70.0
+Награда: диск (blue)
+=================================
+       УРОВЕНЬ ПРОЙДЕН!
+=================================
+📀 ДАННЫЕ ЗАПИСАНЫ НА ДИСК!
+[DiskManager] Got site from DailyManager: Missing Article
+[DiskManager] Disk filled with blue data
+[WaveTuner] Disk filled successfully!
+[Player] Key pressed: 68 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Inventory] use_active_item() slot: 0 item: ():<Resource#-9223371865324517218>
+[Inventory] calling on_use() on 
+[DiskManager] Using CACHED site: Missing Article
+[DiskManager] Disk inserted
+[Player] Key pressed: 69 action: use_item=true
+[ContentGenerator] Loaded:
+  Normal: 1 images, 3 articles
+  Suspicious: 2 images, 0 articles
+  Dangerous: 1 images, 0 articles
+[ArticlePage] ==================================
+[ArticlePage] Site: The Great Disconnection: A Complete History
+[ArticlePage] Category: DANGEROUS
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> SANITY DRAIN active (5.0/sec)
+[ArticlePage] Image: suspicious
+[ArticlePage] ==================================
+[ArticlePage] ==================================
+[ArticlePage] Site: Missing Article
+[ArticlePage] Category: NORMAL
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> NORMAL site
+[ArticlePage] Image: normal
+[ArticlePage] ==================================
+[DiskManager] Disk consumed
+[Player] Unequipped item
+[Player] Equipped: Manual
+[Inventory] Active slot: 2
+[Player] Key pressed: 50 action: use_item=false
+[Inventory] use_active_item() slot: 1 item: ():<Resource#-9223371864670205785>
+[Inventory] calling on_use() on Manual
+[Player] Key pressed: 69 action: use_item=true
+[Player] Key pressed: 4194305 action: use_item=false
+[ContentGenerator] Loaded:
+  Normal: 1 images, 3 articles
+  Suspicious: 2 images, 0 articles
+  Dangerous: 1 images, 0 articles
+[ContentGenerator] WARNING: No articles for category SUSPICIOUS
+[ArticlePage] ==================================
+[ArticlePage] Site: Missing Article
+[ArticlePage] Category: NORMAL
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> NORMAL site
+[ArticlePage] Image: normal
+[ArticlePage] ==================================
+[ArticlePage] ==================================
+[ArticlePage] Site: Missing Article
+[ArticlePage] Category: NORMAL
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> NORMAL site
+[ArticlePage] Image: normal
+[ArticlePage] ==================================
+[DiskManager] Disk consumed
+[DailyManager] ✓ Missing Article | Chosen: NORMAL | Actual: NORMAL | BL: false/true | 12 pts | Total: 12/50
+[DiskManager] Disk consumed
+[Player] Key pressed: 83 action: use_item=false
+[Player] Unequipped item
+[Player] Disk equipped: blue
+[Player] Disk equipped: blue
+[Player] Equipped: 
+[Inventory] Active slot: 1
+[Player] Key pressed: 49 action: use_item=false
+[Player] Key pressed: 4194327 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 65 action: use_item=false
+[Player] Key pressed: 65 action: use_item=false
+[DiskCleaner] interact() called
+[DiskCleaner] Cleaning disk: blue
+[Player] Key pressed: 87 action: use_item=false
+[WaveTuner] Cannot activate: no empty disk!
+=== СЛУЧАЙНЫЙ УРОВЕНЬ ===
+ID: 4
+Частота: 1.2, Амплитуда: 70.0
+Награда: диск (blue)
+[Player] Key pressed: 87 action: use_item=false
+[ContentGenerator] Loaded:
+  Normal: 1 images, 3 articles
+  Suspicious: 2 images, 0 articles
+  Dangerous: 1 images, 0 articles
+[ArticlePage] ==================================
+[ArticlePage] Site: Lost Technologies: What We Left Behind
+[ArticlePage] Category: SUSPICIOUS
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> TEXT UNSTABLE - changes on refresh
+[ArticlePage] Image: suspicious
+[ArticlePage] ==================================
+[ArticlePage] ==================================
+[ArticlePage] Site: Missing Article
+[ArticlePage] Category: NORMAL
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> NORMAL site
+[ArticlePage] Image: normal
+[ArticlePage] ==================================
+[DiskManager] Disk consumed
+[DiskManager] Cached site removed
+[DiskItem] Disk cleared - ready for new data
+[DiskManager] Disk cleared and ready for new data
+[DiskCleaner] Disk cleaned!
+[DailyManager] ✓ Missing Article | Chosen: NORMAL | Actual: NORMAL | BL: false/true | 12 pts | Total: 24/50
+[DiskManager] Disk consumed
+[Player] Key pressed: 68 action: use_item=false
+[Player] Key pressed: 68 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 65 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[WaveTuner] Activated
+=== СЛУЧАЙНЫЙ УРОВЕНЬ ===
+ID: 2
+Частота: 2.0, Амплитуда: 40.0
+Награда: диск (red)
+=================================
+       УРОВЕНЬ ПРОЙДЕН!
+=================================
+📀 ДАННЫЕ ЗАПИСАНЫ НА ДИСК!
+[DiskManager] Got site from DailyManager: Missing Article
+[DiskManager] Disk filled with red data
+[WaveTuner] Disk filled successfully!
+[Player] Key pressed: 68 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Inventory] use_active_item() slot: 0 item: ():<Resource#-9223371865324517218>
+[Inventory] calling on_use() on 
+[DiskManager] Using CACHED site: Missing Article
+[DiskManager] Disk inserted
+[Player] Key pressed: 69 action: use_item=true
+[ContentGenerator] Loaded:
+  Normal: 1 images, 3 articles
+  Suspicious: 2 images, 0 articles
+  Dangerous: 1 images, 0 articles
+[ContentGenerator] WARNING: No articles for category DANGEROUS
+[ArticlePage] ==================================
+[ArticlePage] Site: Missing Article
+[ArticlePage] Category: NORMAL
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> NORMAL site
+[ArticlePage] Image: normal
+[ArticlePage] ==================================
+[ArticlePage] ==================================
+[ArticlePage] Site: Missing Article
+[ArticlePage] Category: DANGEROUS
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> ZALGO active
+[ArticlePage] Image: suspicious
+[ArticlePage] ==================================
+[DiskManager] Disk consumed
+[DailyManager] ✓ Missing Article | Chosen: DANGEROUS | Actual: DANGEROUS | BL: false/false | 60 pts | Total: 84/50
+
+[DailyManager] ╔══════════════════════════════════════════════╗
+[DailyManager] ║              DAY 1 COMPLETED!              ║
+[DailyManager] ╚══════════════════════════════════════════════╝
+[DailyManager] 🏆 Final score: 84 / 50
+[DailyManager]
+[DiskDispenser] Day completed
+[DiskManager] Disk consumed
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[DiskCleaner] interact() called
+[DiskCleaner] Cleaning disk: red
+[Player] Key pressed: 87 action: use_item=false
+[DiskManager] Cached site removed
+[DiskItem] Disk cleared - ready for new data
+[DiskManager] Disk cleared and ready for new data
+[DiskCleaner] Disk cleaned!
+[WaveTuner] Activated
+=== СЛУЧАЙНЫЙ УРОВЕНЬ ===
+ID: 3
+Частота: 3.0, Амплитуда: 50.0
+Награда: диск (green)
+=================================
+       УРОВЕНЬ ПРОЙДЕН!
+=================================
+📀 ДАННЫЕ ЗАПИСАНЫ НА ДИСК!
+[DiskManager] Got site from DailyManager: Missing Article
+[DiskManager] Disk filled with green data
+[WaveTuner] Disk filled successfully!
+[Player] Key pressed: 68 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Inventory] use_active_item() slot: 0 item: ():<Resource#-9223371865324517218>
+[Inventory] calling on_use() on 
+[DiskManager] Using CACHED site: Missing Article
+[DiskManager] Disk inserted
+[Player] Key pressed: 69 action: use_item=true
+[ContentGenerator] Loaded:
+  Normal: 1 images, 3 articles
+  Suspicious: 2 images, 0 articles
+  Dangerous: 1 images, 0 articles
+[ArticlePage] ==================================
+[ArticlePage] Site: Lost Technologies: What We Left Behind
+[ArticlePage] Category: NORMAL
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> NORMAL site
+[ArticlePage] Image: normal
+[ArticlePage] ==================================
+[ArticlePage] ==================================
+[ArticlePage] Site: Missing Article
+[ArticlePage] Category: DANGEROUS
+[ArticlePage] Symptoms: 2
+[ArticlePage]   -> ZALGO active
+[ArticlePage]   -> TEXT UNSTABLE - changes on refresh
+[ArticlePage] Image: suspicious
+[ArticlePage] ==================================
+[DiskManager] Disk consumed
+[DailyManager] ✓ Missing Article | Chosen: DANGEROUS | Actual: DANGEROUS | BL: false/false | 60 pts | Total: 144/50
+
+[DailyManager] ╔══════════════════════════════════════════════╗
+[DailyManager] ║              DAY 2 COMPLETED!              ║
+[DailyManager] ╚══════════════════════════════════════════════╝
+[DailyManager] 🏆 Final score: 144 / 50
+[DailyManager]
+[DiskDispenser] Day completed
+[DiskManager] Disk consumed
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[DiskCleaner] interact() called
+[DiskCleaner] Cleaning disk: green
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 68 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 68 action: use_item=false
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 65 action: use_item=false
+[Player] Key pressed: 68 action: use_item=false
+[Player] Key pressed: 83 action: use_item=false
+[Player] Key pressed: 65 action: use_item=false
+[DiskManager] Cached site removed
+[DiskItem] Disk cleared - ready for new data
+[DiskManager] Disk cleared and ready for new data
+[DiskCleaner] Disk cleaned!
+[Player] Key pressed: 87 action: use_item=false
+[Player] Key pressed: 68 action: use_item=false
+[WaveTuner] Activated
+=== СЛУЧАЙНЫЙ УРОВЕНЬ ===
+ID: 1
+Частота: 1.0, Амплитуда: 30.0
+Награда: диск (blue)
+=================================
+       УРОВЕНЬ ПРОЙДЕН!
+=================================
+📀 ДАННЫЕ ЗАПИСАНЫ НА ДИСК!
+[DiskManager] Got site from DailyManager: Missing Article
+[DiskManager] Disk filled with blue data
+[WaveTuner] Disk filled successfully!
+[Player] Key pressed: 87 action: use_item=false
+[Inventory] use_active_item() slot: 0 item: ():<Resource#-9223371865324517218>
+[Inventory] calling on_use() on 
+[DiskManager] Using CACHED site: Missing Article
+[DiskManager] Disk inserted
+[Player] Key pressed: 69 action: use_item=true
+[ContentGenerator] Loaded:
+  Normal: 1 images, 3 articles
+  Suspicious: 2 images, 0 articles
+  Dangerous: 1 images, 0 articles
+[ArticlePage] ==================================
+[ArticlePage] Site: The Great Disconnection: A Complete History
+[ArticlePage] Category: SUSPICIOUS
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> IMAGE GLITCH active
+[ArticlePage] Image: suspicious
+[ArticlePage] ==================================
+[ArticlePage] ==================================
+[ArticlePage] Site: Missing Article
+[ArticlePage] Category: DANGEROUS
+[ArticlePage] Symptoms: 1
+[ArticlePage]   -> SANITY DRAIN active (5.0/sec)
+[ArticlePage] Image: suspicious
+[ArticlePage] ==================================
+[DiskManager] Disk consumed
+[ArticlePage] Refreshed x1
+[EnemyManager] on_site_misidentified called! Category: DANGEROUS
+[EnemyManager] MISIDENTIFICATION! Jamming electronics...
+[EnemyManager] Environment transitioning to JAMMED
+[EnemyManager] Electronics JAMMED for 120.0 seconds
+[Enemy] Spawned, waiting 3.0 seconds...
+[EnemyManager] Enemy spawned at: (3.502408, 1.350873, 10.15789)
+[DailyManager] ✗ Missing Article | Chosen: SUSPICIOUS | Actual: DANGEROUS | BL: false/false | -40 pts | Total: 104/50
+
+[DailyManager] ╔══════════════════════════════════════════════╗
+[DailyManager] ║              DAY 3 COMPLETED!              ║
+[DailyManager] ╚══════════════════════════════════════════════╝
+[DailyManager] 🏆 Final score: 104 / 50
+[DailyManager]
+[DiskDispenser] Day completed
+[DiskManager] Disk consumed
+[Enemy] Entered ATTACK mode
+[Enemy] Activated! Now hunting...
+[Enemy] Entered SEARCH mode
+[Enemy] Entered ATTACK mode
+[Player] Key pressed: 4194327 action: use_item=false
+[Enemy] Entered SEARCH mode
+[Player] Key pressed: 4194328 action: use_item=false
+[Player] Key pressed: 4194327 action: use_item=false
+"
+label_settings = SubResource("LabelSettings_8hctb")
+autowrap_mode = 2
+clip_text = true

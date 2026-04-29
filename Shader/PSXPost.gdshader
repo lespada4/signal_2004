@@ -1,6 +1,6 @@
 shader_type spatial;
+render_mode cull_disabled, unshaded, blend_mix;
 
-render_mode cull_disabled, unshaded;
 uniform sampler2D depth_texture : source_color, hint_depth_texture;
 uniform sampler2D screen_texture : source_color, hint_screen_texture, repeat_disable, filter_nearest;
 
@@ -37,6 +37,8 @@ void fragment(){
 	
 	float linear_depth = -view.z;
 	
+	// ВСЁ что дальше fog_distance — полностью в тумане
+	// ВСЁ что ближе — прозрачное
 	float depth_mask_inv = clamp((linear_depth - (fog_distance - fog_fade_range)) / fog_fade_range, 0.0, 1.0);
 	
 	vec3 final_color = screen_color;
@@ -50,4 +52,5 @@ void fragment(){
 	}
 	
 	ALBEDO = final_color;
+	ALPHA = depth_mask_inv;  // ← ВАЖНО: Прозрачность по расстоянию
 }

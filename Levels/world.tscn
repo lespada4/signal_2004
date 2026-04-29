@@ -3,6 +3,13 @@
 [ext_resource type="PackedScene" uid="uid://dkq04ltf51tju" path="res://Objects/Player.tscn" id="1_pbelu"]
 [ext_resource type="Theme" uid="uid://bi54ign8ggomc" path="res://Assets/Theme/Themes/Classic95/Classic95.tres" id="2_kycxd"]
 [ext_resource type="PackedScene" uid="uid://cqgj1raeun64" path="res://Levels/inventory.tscn" id="3_pa6j6"]
+[ext_resource type="PackedScene" uid="uid://6y0h4bw84a70" path="res://Objects/pausemenu.tscn" id="4_4dvsh"]
+[ext_resource type="Script" uid="uid://h6nddm2mka8k" path="res://Scripts/jumpscare_manager.gd" id="5_ks8n1"]
+[ext_resource type="Texture2D" uid="uid://ddsiymppl1jd8" path="res://jumpscares/21432.jpg" id="6_vqnaq"]
+[ext_resource type="Texture2D" uid="uid://c5wwc578bdqmd" path="res://jumpscares/ab67616100005174a0da4f9f6fa4e291c7566a97.jpg" id="7_rljl1"]
+[ext_resource type="Texture2D" uid="uid://j7ku7pkhxu3j" path="res://jumpscares/images.jpg" id="8_7ey7r"]
+[ext_resource type="Texture2D" uid="uid://c16rxfnljsikj" path="res://jumpscares/images (1).jpg" id="9_ay5oo"]
+[ext_resource type="Texture2D" uid="uid://xpfmwsyo8b66" path="res://jumpscares/images (2).jpg" id="10_v0p3n"]
 
 [sub_resource type="Gradient" id="Gradient_kycxd"]
 interpolation_mode = 1
@@ -65,3 +72,29 @@ theme = ExtResource("2_kycxd")
 
 [node name="Inventory" parent="UI" unique_id=1164731884 instance=ExtResource("3_pa6j6")]
 layout_mode = 1
+
+[node name="Control" parent="UI" unique_id=796644090 instance=ExtResource("4_4dvsh")]
+layout_mode = 1
+
+[node name="JumpscareManager" type="Control" parent="UI" unique_id=994357424]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_ks8n1")
+jumpscare_textures = Array[Texture2D]([ExtResource("6_vqnaq"), ExtResource("7_rljl1"), ExtResource("8_7ey7r"), ExtResource("9_ay5oo"), ExtResource("10_v0p3n")])
+
+[node name="JumpscareRect" type="TextureRect" parent="UI/JumpscareManager" unique_id=1938802248]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AudioPlayer" type="AudioStreamPlayer" parent="UI/JumpscareManager" unique_id=1860516505]
+volume_db = -25.0

@@ -1,0 +1,18 @@
+[gd_resource type="ParticleProcessMaterial" format=3 uid="uid://bepel2uissi3c"]
+
+[sub_resource type="Curve" id="Curve_u8yol"]
+_data = [Vector2(0.0063091516, 0.37468356), 0.0, 0.0, 0, 0, Vector2(0.24921136, 1), 0.0, 0.0, 0, 0, Vector2(0.44164038, 1), 0.0, 0.0, 0, 0, Vector2(0.9116719, 0.45696205), 0.0, 0.0, 0, 0, Vector2(0.99369085, 0), 0.0, 0.0, 0, 0]
+point_count = 5
+
+[sub_resource type="CurveTexture" id="CurveTexture_ci6md"]
+curve = SubResource("Curve_u8yol")
+
+[resource]
+emission_shape = 3
+emission_box_extents = Vector3(4.26, 1, 5.115)
+gravity = Vector3(0, -0.1, 0)
+radial_accel_min = -0.15000223
+radial_accel_max = 0.14999776
+scale_min = 0.79999995
+scale_max = 1.5999999
+scale_curve = SubResource("CurveTexture_ci6md")

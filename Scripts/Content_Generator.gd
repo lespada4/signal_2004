@@ -15,9 +15,9 @@ enum SiteCategory {
 #  ПУТИ
 # =====================================================
 
-const IMAGES_NORMAL_PATH: String = "res://Web images/normal/"
-const IMAGES_SUSPICIOUS_PATH: String = "res://Web images/sus/"
-const IMAGES_DANGEROUS_PATH: String = "res://Web images/dang/"
+const IMAGES_NORMAL_PATH: String = "res://Web_images/normal/"
+const IMAGES_SUSPICIOUS_PATH: String = "res://Web_images/sus/"
+const IMAGES_DANGEROUS_PATH: String = "res://Web_images/dang/"
 
 const ARTICLES_NORMAL_PATH: String = "res://Text_Files_Web/normal/"
 const ARTICLES_SUSPICIOUS_PATH: String = "res://Text_Files_Web/anomal/"
@@ -163,82 +163,97 @@ func _get_fallback_article() -> Dictionary:
 #  ГЕНЕРАЦИЯ САЙТА
 # =====================================================
 
-func generate_site(category: SiteCategory, day: int = 1) -> PageContent:
+func generate_site(day: int = 1) -> PageContent:
 	_load_all()
 	
-	var article_data = get_random_article(category)
+	var article_category = _random_category()
+	var article_data = get_random_article(article_category)
 	
 	var content = PageContent.new()
 	content.content_type = PageContent.ContentType.ARTICLE
 	content.site_title = "Knowledge Base"
-	content.category = category
 	content.title = article_data["title"]
 	content.author = article_data["author"]
 	content.body = article_data["body"]
 	content.date = _get_random_date()
 	
-	_assign_symptoms(content, category, day)
+	_assign_symptoms(content, day)
 	
-	# Картинка выбирается случайно, независимо от категории
-	var img = _get_random_image_any()
-	if img:
-		content.image = img["texture"]
-		content.image_path = img["path"]
+	match content.category:
+		SiteCategory.NORMAL:
+			content.image = PageContent.NORMAL_IMAGES[randi() % PageContent.NORMAL_IMAGES.size()]
+			content.image_path = "normal"
+		_:
+			content.image = PageContent.SUSPICIOUS_IMAGES[randi() % PageContent.SUSPICIOUS_IMAGES.size()]
+			content.image_path = "suspicious"
 	
 	return content
+	
+func _random_category() -> SiteCategory:
+	var r = randf()
+	if r < 0.5: return SiteCategory.NORMAL
+	if r < 0.8: return SiteCategory.SUSPICIOUS
+	return SiteCategory.DANGEROUS
 
-func _get_random_image_any() -> Dictionary:
-	_load_all()
+func _assign_symptoms(site: PageContent, day: int) -> void:
+	var dangerous: Array[int] = [
+		PageContent.Symptom.ZALGO,
+		PageContent.Symptom.SANITY_DRAIN,
+	]
 	
-	var all_images: Array[Dictionary] = []
-	
-	for path in _normal_images:
-		all_images.append({"texture": load(path), "path": "normal"})
-	for path in _suspicious_images:
-		all_images.append({"texture": load(path), "path": "suspicious"})
-	for path in _dangerous_images:
-		all_images.append({"texture": load(path), "path": "dangerous"})
-	
-	if all_images.is_empty():
-		return {}
-	
-	return all_images[randi() % all_images.size()]
-
-func _assign_symptoms(site: PageContent, category: SiteCategory, day: int) -> void:
-	var symptom_count: int
-	match category:
-		SiteCategory.NORMAL:
-			symptom_count = 0
-		SiteCategory.SUSPICIOUS:
-			symptom_count = 2
-		SiteCategory.DANGEROUS:
-			symptom_count = 2
-	
-	var all_symptoms: Array[int] = [
-		PageContent.Symptom.ZALGO_LIGHT,
-		PageContent.Symptom.ZALGO_HEAVY,
+	var suspicious: Array[int] = [
+		PageContent.Symptom.TEXT_UNSTABLE,
 		PageContent.Symptom.IMAGE_GLITCH,
 	]
 	
-	if day >= 2:
-		all_symptoms.append(PageContent.Symptom.TEXT_UNSTABLE)
-	
+	var log_symptoms: Array[int] = []
 	if day >= 3:
-		all_symptoms.append(PageContent.Symptom.CPU_ANOMALY)
+		log_symptoms = [PageContent.Symptom.CPU_LOG_DANGEROUS, PageContent.Symptom.CPU_LOG_SUSPICIOUS]
 	
-	if category == SiteCategory.DANGEROUS:
-		all_symptoms.append(PageContent.Symptom.SANITY_DRAIN_LIGHT)
-		all_symptoms.append(PageContent.Symptom.SANITY_DRAIN_HEAVY)
+	var roll = randf()
+	var symptom_count: int
+	var pool: Array[int] = []
 	
-	all_symptoms.shuffle()
+	if roll < 0.5:
+		symptom_count = 0
+	elif roll < 0.85:
+		symptom_count = randi_range(1, 2)
+		pool.append_array(suspicious)
+	else:
+		symptom_count = randi_range(1, 2)
+		pool.append_array(dangerous)
+		pool.append_array(suspicious)
 	
-	for i in range(min(symptom_count, all_symptoms.size())):
-		site.add_symptom(all_symptoms[i])
+	pool.shuffle()
 	
-	if site.has_symptom(PageContent.Symptom.ZALGO_HEAVY):
-		site.symptoms.erase(PageContent.Symptom.ZALGO_LIGHT)
-	if site.has_symptom(PageContent.Symptom.SANITY_DRAIN_HEAVY):
-		site.symptoms.erase(PageContent.Symptom.SANITY_DRAIN_LIGHT)
+	if symptom_count == 0 and log_symptoms.is_empty():
+		site.add_symptom(PageContent.Symptom.NORMAL)
+		site.category = SiteCategory.NORMAL
+		return
+	
+	var chosen: Array[int] = []
+	for i in range(symptom_count):
+		if i < pool.size():
+			chosen.append(pool[i])
+	
+	if not log_symptoms.is_empty() and randf() < 0.6:
+		chosen.append(log_symptoms[randi() % log_symptoms.size()])
+	
+	var is_dangerous = false
+	for s in chosen:
+		if dangerous.has(s) or s == PageContent.Symptom.CPU_LOG_DANGEROUS:
+			is_dangerous = true
+			break
+	
+	if is_dangerous:
+		site.category = SiteCategory.DANGEROUS
+	elif chosen.size() > 0:
+		site.category = SiteCategory.SUSPICIOUS
+	else:
+		site.category = SiteCategory.NORMAL
+	
+	for s in chosen:
+		site.add_symptom(s)
 
 # =====================================================
 #  ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ

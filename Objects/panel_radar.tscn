@@ -21,6 +21,10 @@ viewport_path = NodePath("SubViewport")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8ni47"]
 resource_local_to_scene = true
 albedo_texture = SubResource("ViewportTexture_0dn25")
+emission_enabled = true
+emission = Color(0.5881702, 0.64102364, 0.6573326, 1)
+emission_energy_multiplier = 0.55
+emission_texture = SubResource("ViewportTexture_0dn25")
 texture_filter = 0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gdhoe"]
@@ -32,7 +36,6 @@ collision_mask = 4
 script = ExtResource("1_0dn25")
 viewport_size = Vector2(1024, 1024)
 monitor_camera = NodePath("Camera3D")
-fade_duration = 0.1
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1683690284]
 mesh = SubResource("BoxMesh_21qmg")
