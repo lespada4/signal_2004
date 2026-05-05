@@ -3,12 +3,12 @@ extends Control
 # =====================================================
 #  NODES
 # =====================================================
-@onready var graph_area = $GraphArea
+@onready var graph_area = $Panel/GraphArea
 
-@onready var freq_slider: VSlider = $Control/Panel3/MarginContainer/HBoxContainer/FreqSlider
-@onready var freq_label: Label = $Control/Panel3/MarginContainer/HBoxContainer/FreqSlider/FreqLabel
-@onready var amp_slider: VSlider = $Control/Panel3/MarginContainer/HBoxContainer/AmpSlider
-@onready var amp_label: Label = $Control/Panel3/MarginContainer/HBoxContainer/AmpSlider/AmpLabel
+@onready var freq_slider: VSlider = $Panel/Panel/MarginContainer/HBoxContainer/FreqSlider
+@onready var freq_label: Label = $Panel/Panel/MarginContainer/HBoxContainer/FreqSlider/FreqLabel
+@onready var amp_slider: VSlider =$Panel/Panel/MarginContainer/HBoxContainer/AmpSlider
+@onready var amp_label: Label = $Panel/Panel/MarginContainer/HBoxContainer/AmpSlider/AmpLabel
 
 # =====================================================
 #  EQUALIZER

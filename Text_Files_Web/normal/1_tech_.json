@@ -1,0 +1,11 @@
+{
+	"title": "Lost Technologies",
+	"author": "Marcus Webb",
+	"date": "2014-03-15",
+	"body": "Обычный текст статьи...",
+	"body_refresh": "Текст после обновления — изменённый, аномальный...",
+
+	"tags": ["tech"],
+	"blacklisted": false,
+	"has_second_version": true
+}

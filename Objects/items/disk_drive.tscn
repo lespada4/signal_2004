@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dgrswv6l3u7ii"]
 
 [ext_resource type="Shader" uid="uid://cj5vgg1u1m4mj" path="res://disk.gdshader" id="1_deohg"]
-[ext_resource type="Texture2D" uid="uid://b16cgdl74t1o5" path="res://Web_images/sus/1.png" id="2_ktehx"]
+[ext_resource type="Texture2D" uid="uid://dwkfdcujjtr07" path="res://Web_images/atlas/Tech/1.png" id="2_deohg"]
 
 [sub_resource type="TorusMesh" id="TorusMesh_r0eov"]
 inner_radius = 0.058
@@ -26,16 +26,15 @@ shader_parameter/z_clip_scale = 0.01
 shader_parameter/normal_depth = 0.25
 shader_parameter/color_compression = 6.0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f1owi"]
-albedo_color = Color(0.5330367, 0.5330367, 0.5330367, 1)
-albedo_texture = ExtResource("2_ktehx")
-metallic = 0.5
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ktehx"]
+albedo_color = Color(0.3180198, 0.31801978, 0.31801975, 1)
+albedo_texture = ExtResource("2_deohg")
 texture_filter = 0
 use_z_clip_scale = true
 z_clip_scale = 0.01
 
 [sub_resource type="BoxMesh" id="BoxMesh_q54n4"]
-material = SubResource("StandardMaterial3D_f1owi")
+material = SubResource("StandardMaterial3D_ktehx")
 size = Vector3(0.27, 0.01, 0.25)
 
 [node name="Node3D" type="Node3D" unique_id=1330927967]

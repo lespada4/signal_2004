@@ -1,0 +1,288 @@
+[gd_scene format=3 uid="uid://dmkp8igkolpdq"]
+
+[ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="1_5fgyd"]
+[ext_resource type="Script" uid="uid://dkfsynbcaluyf" path="res://Objects/pages/terminal_os.gd" id="2_v0176"]
+[ext_resource type="Texture2D" uid="uid://ckqe45wya8db" path="res://Textures/Tile_32.png" id="3_k0e4n"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_k0e4n"]
+font_size = 32
+shadow_size = 2
+shadow_color = Color(0.18405044, 0.26665464, 0.29047808, 0.85882354)
+
+[sub_resource type="LabelSettings" id="LabelSettings_wcv2u"]
+font_size = 10
+font_color = Color(0, 0, 0, 1)
+
+[node name="TerminalOS" type="Control" unique_id=615258984]
+custom_minimum_size = Vector2(800, 600)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 640.0
+offset_bottom = 480.0
+pivot_offset = Vector2(512, 512)
+theme = ExtResource("1_5fgyd")
+script = ExtResource("2_v0176")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1109064558]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="Panel" type="Panel" parent="VBoxContainer" unique_id=1789199133]
+self_modulate = Color(0.3522301, 0.75831705, 0.84947944, 1)
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/Panel" unique_id=1536207866]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -5.5
+offset_right = 320.0
+offset_bottom = 5.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Signal OS"
+label_settings = SubResource("LabelSettings_k0e4n")
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=2058859074]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="OS_Content_Panel_Placer" type="Panel" parent="VBoxContainer/HBoxContainer" unique_id=897875289]
+self_modulate = Color(0.26666668, 0.57254905, 0.6392157, 1)
+custom_minimum_size = Vector2(256, 452)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/OS_Content_Panel_Placer" unique_id=2035886697]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -54.0
+offset_top = -5.5
+offset_right = 54.0
+offset_bottom = 5.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "fdhggedhb"
+
+[node name="Category_Panel" type="Panel" parent="VBoxContainer/HBoxContainer" unique_id=1909343062]
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/Category_Panel" unique_id=817362637]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -54.0
+offset_top = -189.75
+offset_right = 54.0
+offset_bottom = 180.25
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 51
+
+[node name="PanelContainer" type="Panel" parent="VBoxContainer/HBoxContainer/Category_Panel/VBoxContainer" unique_id=1971501039]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/Category_Panel/VBoxContainer/PanelContainer" unique_id=742567209]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -48.0
+offset_top = -12.5
+offset_right = 48.0
+offset_bottom = 12.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/line_spacing = 6
+text = "CATEGORY
+MANAGER"
+horizontal_alignment = 1
+
+[node name="NORMAL_BUTTON" type="Button" parent="VBoxContainer/HBoxContainer/Category_Panel/VBoxContainer" unique_id=1368149453]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "NORMAL"
+
+[node name="ANOMALY_BUTTON" type="Button" parent="VBoxContainer/HBoxContainer/Category_Panel/VBoxContainer" unique_id=48885073]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "ANOMALY"
+
+[node name="DANGEROUS_BUTTON" type="Button" parent="VBoxContainer/HBoxContainer/Category_Panel/VBoxContainer" unique_id=1987507002]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "DANGEROUS"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/Category_Panel/VBoxContainer" unique_id=2039307701]
+layout_mode = 2
+theme_override_constants/separation = 60
+
+[node name="BLACKLISTED_CHECKBOX" type="CheckBox" parent="VBoxContainer/HBoxContainer/Category_Panel/VBoxContainer/VBoxContainer" unique_id=57600433]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+flat = true
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/Category_Panel/VBoxContainer/VBoxContainer/BLACKLISTED_CHECKBOX" unique_id=199853726]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -54.0
+offset_top = 0.5
+offset_right = 54.0
+offset_bottom = 17.5
+grow_horizontal = 2
+grow_vertical = 0
+text = "BLACKLISTED"
+label_settings = SubResource("LabelSettings_wcv2u")
+horizontal_alignment = 1
+
+[node name="Page_Panel" type="Panel" parent="VBoxContainer" unique_id=1896244244]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+size_flags_vertical = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/Page_Panel" unique_id=147784487]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.409
+anchor_right = 0.5
+anchor_bottom = 0.409
+offset_left = -188.0
+offset_top = -19.992
+offset_right = 188.0
+offset_bottom = 20.008
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 112
+
+[node name="WebButton" type="Button" parent="VBoxContainer/Page_Panel/HBoxContainer" unique_id=1023123807]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+icon = ExtResource("3_k0e4n")
+icon_alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer/Page_Panel/HBoxContainer/WebButton" unique_id=1592327443]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -22.0
+offset_top = 6.0
+offset_right = 22.0
+offset_bottom = 17.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(471, -38.5)
+text = "WEB SITE"
+horizontal_alignment = 1
+
+[node name="ManualButton" type="Button" parent="VBoxContainer/Page_Panel/HBoxContainer" unique_id=1830316952]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+icon = ExtResource("3_k0e4n")
+icon_alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer/Page_Panel/HBoxContainer/ManualButton" unique_id=191682011]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -22.0
+offset_top = 6.0
+offset_right = 22.0
+offset_bottom = 17.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(471, -38.5)
+text = "MANUAL"
+horizontal_alignment = 1
+
+[node name="QuotaButton" type="Button" parent="VBoxContainer/Page_Panel/HBoxContainer" unique_id=20933682]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+icon = ExtResource("3_k0e4n")
+icon_alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer/Page_Panel/HBoxContainer/QuotaButton" unique_id=257223262]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -22.0
+offset_top = 6.0
+offset_right = 22.0
+offset_bottom = 17.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(471, -38.5)
+text = "QUOTA"
+horizontal_alignment = 1
+
+[node name="Panel" type="Panel" parent="VBoxContainer/Page_Panel/HBoxContainer" unique_id=45206171]
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 2
+
+[node name="MANAGER_CALL_CHECKBUTTON" type="CheckButton" parent="VBoxContainer/Page_Panel/HBoxContainer/Panel" unique_id=717924626]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -69.5
+offset_top = -15.0
+offset_right = 69.5
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+
+[node name="Label" type="Label" parent="VBoxContainer/Page_Panel/HBoxContainer/Panel" unique_id=1847853449]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -69.0
+offset_top = -10.0
+offset_right = 20.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "MANAGER"
+horizontal_alignment = 1
+vertical_alignment = 1

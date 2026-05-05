@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dfw13cb2wtkr8" path="res://Objects/panel_radar.gd" id="1_0dn25"]
 [ext_resource type="Texture2D" uid="uid://b0kr8b8i6b66g" path="res://Textures/Wall_32.png" id="2_0dn25"]
+[ext_resource type="PackedScene" uid="uid://dmkp8igkolpdq" path="res://Objects/pages/terminal_os.tscn" id="3_avt0s"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_21qmg"]
 
@@ -34,7 +35,6 @@ size = Vector3(1, 1, 0.062561035)
 collision_layer = 3
 collision_mask = 4
 script = ExtResource("1_0dn25")
-viewport_size = Vector2(1024, 1024)
 monitor_camera = NodePath("Camera3D")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1683690284]
@@ -56,13 +56,15 @@ projection = 1
 size = 1.13
 
 [node name="ScreenMesh" type="MeshInstance3D" parent="." unique_id=1427108615]
-transform = Transform3D(0.845, 0, 0, 0, 0.845, 0, 0, 0, 0.845, 0, 0, 0.50775254)
+transform = Transform3D(0.845, 0, 0, 0, 0.6760981, 0, 0, 0, 0.845, 0, 0, 0.50775254)
 mesh = SubResource("QuadMesh_0dn25")
 surface_material_override/0 = SubResource("StandardMaterial3D_8ni47")
 
 [node name="SubViewport" type="SubViewport" parent="." unique_id=2090134259]
 canvas_item_default_texture_filter = 0
-size = Vector2i(1024, 1024)
+size = Vector2i(640, 480)
+
+[node name="TerminalOS" parent="SubViewport" unique_id=615258984 instance=ExtResource("3_avt0s")]
 
 [node name="InteractionArea" type="Area3D" parent="." unique_id=1071992900]
 collision_layer = 0

@@ -130,16 +130,24 @@ func hide_disk() -> void:
 	current_item_instance = null
 
 func try_insert_disk(disk: DiskItem) -> bool:
+	if not interaction_shape: return false
+	
 	interaction_shape.force_raycast_update()
-	if not interaction_shape.is_colliding(): return false
-	if DiskManager and DiskManager.is_disk_used(disk): return false
 	var collider = interaction_shape.get_collider()
-	if collider is BrowserTerminal and DiskManager:
-		var success = DiskManager.insert_disk(disk)
-		if success: inventory.remove_item(disk)
-		return success
+	
+	if not collider:
+		print("[Player] Not looking at terminal")
+		return false
+	
+	if collider is BrowserTerminal:
+		if DiskManager:
+			var success = DiskManager.insert_disk(disk)
+			if success:
+				collider.activate_terminal(camera)
+				inventory.remove_item(disk)
+			return success
+	
 	return false
-
 func _toggle_pause() -> void:
 	if not pause_menu: return
 	

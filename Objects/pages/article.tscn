@@ -40,7 +40,7 @@ font_size = 24
 font_color = Color(0, 0, 0, 1)
 
 [node name="Article" type="Control" unique_id=630103945]
-custom_minimum_size = Vector2(1024, 1024)
+custom_minimum_size = Vector2(640, 332)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -152,6 +152,7 @@ theme_override_font_sizes/normal_font_size = 32
 text = "214214214214"
 
 [node name="Panel2" type="Panel" parent="Panel" unique_id=535299118]
+self_modulate = Color(0.34033912, 0.34033936, 0.3403393, 1)
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.83900005
@@ -172,13 +173,13 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -100.0
-offset_right = 100.0
-offset_bottom = 100.0
+offset_left = -125.0
+offset_top = -125.0
+offset_right = 125.0
+offset_bottom = 125.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(100, 100)
+pivot_offset = Vector2(130, 130)
 texture = SubResource("NoiseTexture2D_8hctb")
 
 [node name="Panel2" type="Panel" parent="." unique_id=996373648]
@@ -260,6 +261,7 @@ size_flags_horizontal = 4
 text = "GET A LOG"
 
 [node name="LogPanel" type="Panel" parent="." unique_id=503527895]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.358

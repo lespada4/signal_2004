@@ -2,37 +2,17 @@ extends Resource
 class_name PageContent
 
 # =====================================================
-#  ВСТРОЕННЫЕ КАРТИНКИ
-# =====================================================
-
-const NORMAL_IMAGES = [
-	preload("res://Web_images/normal/1.png"),
-	preload("res://Web_images/normal/2.png"),
-]
-
-const SUSPICIOUS_IMAGES = [
-	preload("res://Web_images/sus/1.png"),
-	preload("res://Web_images/sus/2.png"),
-]
-
-const DANGEROUS_IMAGES = [
-	preload("res://Web_images/dang/1.png"),
-	preload("res://Web_images/dang/2.png"),
-]
-
-# =====================================================
 #  СИМПТОМЫ
 # =====================================================
 
 enum Symptom {
 	NONE,
-	NORMAL,
 	ZALGO,
 	SANITY_DRAIN,
-	CPU_LOG_DANGEROUS,
 	TEXT_UNSTABLE,
-	CPU_LOG_SUSPICIOUS,
-	IMAGE_GLITCH
+	IMAGE_GLITCH,
+	CPU_SPIKE,
+	LOG_CORRUPTED
 }
 
 # =====================================================
@@ -48,7 +28,12 @@ enum Symptom {
 #  ИЗОБРАЖЕНИЯ
 # =====================================================
 @export var image: Texture2D = null
-@export var image_path: String = ""
+@export var image_path: String = ""  # "tech", "anomaly", "webcore" etc.
+
+# =====================================================
+#  ТЕГИ (для подбора картинок из атласов)
+# =====================================================
+@export var tags: Array[String] = []
 
 # =====================================================
 #  ДЛЯ ФОРУМА
@@ -74,7 +59,12 @@ enum ContentType {
 # =====================================================
 #  КАТЕГОРИЯ САЙТА
 # =====================================================
-@export var category: int = 0
+@export var category: int = 0  # SiteCategory.NORMAL
+
+# =====================================================
+#  БЛЕК-ЛИСТ
+# =====================================================
+@export var blacklisted: bool = false
 
 # =====================================================
 #  СИМПТОМЫ
@@ -87,9 +77,6 @@ func has_symptom(symptom: Symptom) -> bool:
 func add_symptom(symptom: Symptom) -> void:
 	if not symptoms.has(symptom):
 		symptoms.append(symptom)
-
-func get_symptom_count() -> int:
-	return symptoms.size()
 
 # =====================================================
 #  МЕТОДЫ ДОСТУПА
@@ -120,21 +107,8 @@ func has_image() -> bool:
 func get_image() -> Texture2D:
 	return image
 
-func set_image(tex: Texture2D, img_path: String = "") -> void:
-	image = tex
-	image_path = img_path
-
 func get_image_path() -> String:
 	return image_path
-
-func is_image_suspicious() -> bool:
-	return image_path == "suspicious"
-
-func is_image_dangerous() -> bool:
-	return image_path == "dangerous"
-
-func is_image_normal() -> bool:
-	return image_path == "normal"
 
 # =====================================================
 #  НОВОСТИ
@@ -148,12 +122,6 @@ func get_news_item(index: int) -> Dictionary:
 		return news_items[index]
 	return {}
 
-func has_news_images() -> bool:
-	for news in news_items:
-		if news.has("image") and news["image"] != null:
-			return true
-	return false
-
 # =====================================================
 #  ФОРУМ
 # =====================================================
@@ -165,30 +133,3 @@ func get_thread(index: int) -> Dictionary:
 	if index >= 0 and index < threads.size():
 		return threads[index]
 	return {}
-
-# =====================================================
-#  ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
-# =====================================================
-
-func get_content_type_name() -> String:
-	match content_type:
-		ContentType.FORUM: return "Forum"
-		ContentType.NEWS: return "News"
-		ContentType.ARTICLE: return "Article"
-		ContentType.SIMPLE: return "Simple"
-		_: return "Unknown"
-
-func has_any_image() -> bool:
-	if has_image():
-		return true
-	for news in news_items:
-		if news.has("image") and news["image"] != null:
-			return true
-	return false
-
-func clear_images() -> void:
-	image = null
-	image_path = ""
-	for news in news_items:
-		if news.has("image"):
-			news.erase("image")

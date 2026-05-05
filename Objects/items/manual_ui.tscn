@@ -3,10 +3,6 @@
 [ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="1_7ru6a"]
 [ext_resource type="Texture2D" uid="uid://bs24j8a86wtbx" path="res://Textures/x.png" id="2_m63ku"]
 [ext_resource type="Script" uid="uid://d0hgmvxu4ejbx" path="res://Objects/items/manual_ui.gd" id="2_n8cli"]
-[ext_resource type="Texture2D" uid="uid://cyicme3xc1bjj" path="res://Web_images/dang/1.png" id="4_7g7lc"]
-[ext_resource type="Texture2D" uid="uid://def41ipbwyglu" path="res://Web_images/normal/1.png" id="5_c8tfn"]
-[ext_resource type="Texture2D" uid="uid://b16cgdl74t1o5" path="res://Web_images/sus/1.png" id="6_m7yh0"]
-[ext_resource type="Texture2D" uid="uid://7jnj3yj1revs" path="res://Web_images/sus/2.png" id="7_6j3v3"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_7ru6a"]
 font_size = 18
@@ -101,19 +97,3 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_font_sizes/font_size = 64
 text = "<>"
-
-[node name="Dangerous" type="Sprite2D" parent="." unique_id=2001067329]
-position = Vector2(503, 241)
-texture = ExtResource("4_7g7lc")
-
-[node name="Safe" type="Sprite2D" parent="." unique_id=559467281]
-position = Vector2(570, 298)
-texture = ExtResource("5_c8tfn")
-
-[node name="AbstractNoise026256x256" type="Sprite2D" parent="." unique_id=1308064393]
-position = Vector2(639, 465)
-texture = ExtResource("6_m7yh0")
-
-[node name="AbstractNoise035256x256" type="Sprite2D" parent="." unique_id=457144000]
-position = Vector2(742, 213)
-texture = ExtResource("7_6j3v3")

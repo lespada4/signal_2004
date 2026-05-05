@@ -5,10 +5,11 @@ enum TerminalMode { GAME, FLASH_DRIVE, STATS }
 
 @export var mode: TerminalMode = TerminalMode.FLASH_DRIVE
 @export var ui_scene: PackedScene
+@export var article_scene: PackedScene
+@export var terminal_os_scene: PackedScene
 @export var no_flash_drive_scene: PackedScene
 @export var stats_scene: PackedScene
 @export var day_over_scene: PackedScene
-@export var viewport_size: Vector2 = Vector2(1920, 1080)
 @export var monitor_camera: Camera3D
 @export var exit_key: Key = KEY_ESCAPE
 
@@ -24,7 +25,7 @@ var mesh_size: Vector2
 var plane: Plane
 var last_viewport_pos: Vector2 = Vector2.ZERO
 var _disabled: bool = false
-var _day_completed: bool = false
+var _current_site: PageContent = null
 
 func _ready():
 	_setup_mesh_size()
@@ -67,18 +68,14 @@ func _update_plane():
 	plane = Plane(normal, screen_mesh.global_position)
 
 func _setup_viewport():
-	viewport.size = viewport_size
 	viewport.transparent_bg = true
 	viewport.gui_disable_input = false
 	viewport.gui_embed_subwindows = true
-	viewport.size_2d_override = viewport_size
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 
 func _process(_delta):
-	# Всегда передаём delta в ui_instance для анимации
 	if ui_instance and ui_instance.has_method("_process_equalizer"):
 		ui_instance._process_equalizer(_delta)
-	
 	if not is_active: return
 	_process_mouse_motion(get_viewport().get_mouse_position())
 
@@ -99,12 +96,14 @@ func _process_mouse_motion(screen_pos: Vector2):
 
 func _input(event):
 	if not is_active: return
+	if event is InputEventKey:
+		viewport.push_input(event)
 	if event is InputEventKey and event.keycode == exit_key and event.pressed:
-		# Выходим из терминала И открываем паузу
 		exit_terminal()
 		if player.has_method("_toggle_pause"):
 			player._toggle_pause()
-	elif event is InputEventMouseButton: _handle_mouse_button(event)
+	elif event is InputEventMouseButton:
+		_handle_mouse_button(event)
 
 func _handle_mouse_button(event: InputEventMouseButton):
 	var screen_pos = get_viewport().get_mouse_position()
@@ -142,17 +141,98 @@ func _load_scene(scene: PackedScene) -> Control:
 
 func _load_site(site: PageContent):
 	_clear_viewport()
-	ui_instance = _load_scene(ui_scene)
-	if not ui_instance: return
-	if ui_instance.has_method("update_content"): ui_instance.update_content(site)
-	elif ui_instance.has_method("_apply_content"): ui_instance._apply_content(site)
-	elif ui_instance.get("content") != null: ui_instance.content = site
+	_current_site = site
+	
+	if terminal_os_scene:
+		var terminal_os = terminal_os_scene.instantiate()
+		viewport.add_child(terminal_os)
+		terminal_os.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		if terminal_os is TerminalOS:
+			terminal_os.command_executed.connect(_on_os_command)
+			ui_instance = terminal_os
+			_reload_site_in_terminal()
+	
+	if DiskManager:
+		DiskManager.confirm_site_loaded()
+
+func _reload_site_in_terminal() -> void:
+	var terminal = ui_instance as TerminalOS
+	if not terminal or not _current_site or not article_scene: return
+	
+	terminal._clear_site_view()
+	
+	var article = article_scene.instantiate()
+	terminal.show_site(article)
+	
+	await get_tree().process_frame
+	
+	if article.has_method("update_content"):
+		article.update_content(_current_site)
+	elif article.has_method("_apply_content"):
+		article._apply_content(_current_site)
+
+func _on_os_command(command: String, flags: Array[String]) -> void:
+	var terminal = ui_instance as TerminalOS
+	if not terminal: return
+	
+	match command:
+		"/insert":
+			if _current_site:
+				_reload_site_in_terminal()
+				terminal._output("Site loaded.")
+			elif DiskManager and DiskManager.get_current_site():
+				_current_site = DiskManager.get_current_site()
+				_reload_site_in_terminal()
+				terminal._output("Disk inserted. Site loaded.")
+			else:
+				terminal._output("No disk. Use inventory to insert disk.")
+		
+		"/refresh":
+			var article = terminal.get_site_child()
+			if article and article.has_method("_on_refresh_pressed"):
+				article._on_refresh_pressed()
+				terminal._output("Page refreshed")
+		
+		"/diagnostic":
+			var article = terminal.get_site_child()
+			if article:
+				if article.has_method("_on_diag_pressed"):
+					article._on_diag_pressed()
+				if article.has_method("_generate_diagnostic"):
+					terminal._output(article._generate_diagnostic())
+		
+		"/assign":
+			_handle_assign(flags, terminal)
+		
+		"/eject":
+			if DiskManager:
+				DiskManager.eject_disk()
+			_current_site = null
+			terminal._clear_site_view()
+			terminal._output("Disk ejected")
+
+func _handle_assign(flags: Array[String], terminal: TerminalOS) -> void:
+	if not _current_site: return
+	
+	var category = ContentGenerator.SiteCategory.NORMAL
+	var is_bl = false
+	
+	for flag in flags:
+		match flag:
+			"-normal": category = ContentGenerator.SiteCategory.NORMAL
+			"-anomaly": category = ContentGenerator.SiteCategory.SUSPICIOUS
+			"-dangerous": category = ContentGenerator.SiteCategory.DANGEROUS
+			"-bl": is_bl = true
+	
+	if DailyManager:
+		DailyManager.complete_site(_current_site, category, is_bl)
+		terminal._output("Site assigned: " + ContentGenerator.SiteCategory.keys()[category])
+		_current_site = null
 
 func _on_disk_inserted(site: PageContent):
 	_load_site(site)
 
 func _on_day_completed(_day: int, _score: int, _quota: int) -> void:
-	_day_completed = true
 	if is_active: exit_terminal()
 	if mode == TerminalMode.FLASH_DRIVE:
 		_clear_viewport()
@@ -173,8 +253,7 @@ func activate_terminal(camera: Node):
 				ui_instance.refresh()
 		TerminalMode.FLASH_DRIVE:
 			if DiskManager and DiskManager.get_current_site():
-				# Не перезагружаем сайт если он уже показан
-				if not ui_instance or not (ui_instance is ArticlePage):
+				if not ui_instance or not (ui_instance is TerminalOS):
 					_load_site(DiskManager.get_current_site())
 			else:
 				_clear_viewport()
@@ -196,15 +275,11 @@ func exit_terminal():
 	if player.has_method("set_shader_visible"): player.set_shader_visible(true)
 	elif player.get("shader"): player.shader.visible = true
 	if aim_ui: aim_ui.visible = true
-	
 	if player.has_method("unlock_controls"): player.unlock_controls()
-	
 	_switch_camera(player_camera)
 	is_active = false
-	
+	_current_site = null
 	if player.has_method("show_ui"): player.show_ui()
-	
-	# Принудительно показываем курсор после выхода
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _switch_camera(to_camera: Camera3D):

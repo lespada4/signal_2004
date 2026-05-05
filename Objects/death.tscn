@@ -1,8 +1,76 @@
 [gd_scene format=3 uid="uid://cm41p17muaxuv"]
 
 [ext_resource type="Theme" uid="uid://sx8r7eylidoh" path="res://Assets/Theme/Themes/Classic311/Classic311.tres" id="1_gnpve"]
+[ext_resource type="Shader" uid="uid://3t8irlprodax" path="res://Objects/sorting.gdshader" id="3_t8i4b"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hldce"]
+shader = ExtResource("3_t8i4b")
+shader_parameter/mask_softness = 1.4
+shader_parameter/mask_threshold = 2.0
+shader_parameter/sort = 2.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_48nnw"]
+
+[sub_resource type="Animation" id="Animation_iwncl"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ColorRect:material:shader_parameter/mask_threshold")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [2.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ColorRect:material:shader_parameter/mask_softness")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.4]
+}
+
+[sub_resource type="Animation" id="Animation_gwqxw"]
+resource_name = "death"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ColorRect:material:shader_parameter/mask_threshold")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [2.0, -2.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ColorRect:material:shader_parameter/mask_softness")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.4, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_o7q65"]
+_data = {
+&"RESET": SubResource("Animation_iwncl"),
+&"death": SubResource("Animation_gwqxw")
+}
 
 [node name="DEATH" type="Control" unique_id=1215161581]
 layout_mode = 3
@@ -14,6 +82,7 @@ grow_vertical = 2
 theme = ExtResource("1_gnpve")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=395397329]
+material = SubResource("ShaderMaterial_hldce")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -37,3 +106,7 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "mortis"
 label_settings = SubResource("LabelSettings_48nnw")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1652374472]
+libraries/ = SubResource("AnimationLibrary_o7q65")
+autoplay = &"death"

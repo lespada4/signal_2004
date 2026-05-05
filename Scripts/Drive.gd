@@ -92,20 +92,27 @@ func eject_disk() -> DiskItem:
 	var disk = _current_disk
 	_current_disk = null
 	_current_site = null
-	# НЕ удаляем из кэша — сайт должен остаться на диске
+
 	print("[DiskManager] Disk ejected")
 	return disk
 
 func clear_disk(disk: DiskItem) -> bool:
+	if not disk:
+		print("[DiskManager] ERROR: disk is null!")
+		return false
+	
 	if disk.is_empty():
 		print("[DiskManager] Disk is already empty!")
 		return false
+	
 	if _disk_site_cache.has(disk):
 		_disk_site_cache.erase(disk)
+	
 	var idx = _used_disks.find(disk)
 	if idx != -1:
 		_used_disks.remove_at(idx)
 		print("[DiskManager] Disk removed from used list")
+	
 	disk.clear()
 	print("[DiskManager] Disk cleared and ready for new data")
 	return true

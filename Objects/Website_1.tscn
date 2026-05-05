@@ -29,7 +29,7 @@ font_color = Color(1.7818713, 1.0702234e-05, 5.6142867e-06, 1)
 
 [node name="TestPage" type="Control" unique_id=1218941484]
 texture_filter = 1
-custom_minimum_size = Vector2(1024, 1024)
+custom_minimum_size = Vector2(800, 600)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

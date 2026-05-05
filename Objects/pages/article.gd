@@ -31,22 +31,16 @@ func _ready() -> void:
 	refresh_button.pressed.connect(_on_refresh_pressed)
 	diag_button.pressed.connect(_on_diag_pressed)
 	
-	# Доступность кнопок по дням
 	var day = DailyManager.current_day if DailyManager else 1
 	
-	# REFRESH доступен с Дня 1
 	refresh_button.visible = true
-	
-	# BLACKLIST доступен с Дня 2
 	blacklisted_check.visible = day >= 2
-	
-	# DIAGNOSTIC доступен с Дня 3
 	diag_button.visible = day >= 3
 	
 	if content:
 		_apply_content(content)
 	else:
-		_apply_content(ContentGenerator.new().generate_site())
+		_apply_content(ContentGenerator.new().generate_site(ContentGenerator.SiteCategory.NORMAL))
 	
 	super._ready()
 	
@@ -86,40 +80,23 @@ func _apply_content(data: PageContent) -> void:
 	_sanity_drain_active = false
 	set_zalgo_enabled(false)
 	
-	print("[ArticlePage] ==================================")
-	print("[ArticlePage] Site: ", data.title)
-	print("[ArticlePage] Category: ", ContentGenerator.SiteCategory.keys()[data.category])
-	print("[ArticlePage] Symptoms: ", data.symptoms.size())
-	
 	if data.has_symptom(PageContent.Symptom.ZALGO):
 		set_zalgo_enabled(true)
 		set_zalgo_concentration(50)
-		print("[ArticlePage]   -> ZALGO active")
 	
 	if data.has_symptom(PageContent.Symptom.SANITY_DRAIN):
 		_sanity_drain_active = true
 		_sanity_drain_rate = 5.0
-		print("[ArticlePage]   -> SANITY DRAIN active")
 	
 	if data.has_symptom(PageContent.Symptom.IMAGE_GLITCH):
 		if data.has_image():
 			image.self_modulate = Color(1.0, 0.8, 0.8)
-			print("[ArticlePage]   -> IMAGE GLITCH active")
 	
-	if data.has_symptom(PageContent.Symptom.TEXT_UNSTABLE):
-		print("[ArticlePage]   -> TEXT UNSTABLE")
+	if data.has_symptom(PageContent.Symptom.CPU_SPIKE):
+		pass
 	
-	if data.has_symptom(PageContent.Symptom.CPU_LOG_SUSPICIOUS):
-		print("[ArticlePage]   -> CPU LOG SUSPICIOUS")
-	
-	if data.has_symptom(PageContent.Symptom.CPU_LOG_DANGEROUS):
-		print("[ArticlePage]   -> CPU LOG DANGEROUS")
-	
-	if data.has_symptom(PageContent.Symptom.NORMAL):
-		print("[ArticlePage]   -> NORMAL site")
-	
-	print("[ArticlePage] Image: ", data.image_path)
-	print("[ArticlePage] ==================================")
+	if data.has_symptom(PageContent.Symptom.LOG_CORRUPTED):
+		pass
 
 func _process(delta: float) -> void:
 	if _sanity_drain_active:
@@ -127,19 +104,19 @@ func _process(delta: float) -> void:
 		if player and player.has_method("drain_sanity"):
 			player.drain_sanity(_sanity_drain_rate * delta)
 
-# =====================================================
-#  REFRESH
-# =====================================================
-
 func _on_refresh_pressed() -> void:
 	_times_refreshed += 1
 	
-	if content.has_symptom(PageContent.Symptom.TEXT_UNSTABLE):
-		_scramble_text(0.5)
-		if content.has_symptom(PageContent.Symptom.IMAGE_GLITCH):
-			_apply_random_glitch()
+	# Если есть второй вариант текста — показываем его
+	if content.has_meta("body_refresh"):
+		var alt_body = content.get_meta("body_refresh")
+		if alt_body != "":
+			body_label.text = alt_body
+			_times_refreshed += 1
 	
-	print("[ArticlePage] Refreshed x", _times_refreshed)
+	# Обычный скрамбл для TEXT_UNSTABLE
+	elif content.has_symptom(PageContent.Symptom.TEXT_UNSTABLE):
+		_scramble_text(0.5)
 
 func _scramble_text(intensity: float) -> void:
 	var text = body_label.text
@@ -153,9 +130,6 @@ func _apply_random_glitch() -> void:
 	if not image.visible:
 		return
 	image.modulate = Color(randf_range(0.5, 1), randf_range(0.5, 1), randf_range(0.5, 1))
-# =====================================================
-#  DIAGNOSTIC
-# =====================================================
 
 func _on_diag_pressed() -> void:
 	_log_shown = !_log_shown
@@ -167,22 +141,15 @@ func _on_diag_pressed() -> void:
 		log_panel.visible = false
 
 func _generate_diagnostic() -> String:
-	# Если сайт DANGEROUS — лог всегда DANGEROUS
 	if content.category == ContentGenerator.SiteCategory.DANGEROUS:
 		return _generate_log(ContentGenerator.SiteCategory.DANGEROUS)
 	
-	# Если есть лог-симптом — он определяет категорию лога
-	if content.has_symptom(PageContent.Symptom.CPU_LOG_DANGEROUS):
+	if content.has_symptom(PageContent.Symptom.CPU_SPIKE) or content.has_symptom(PageContent.Symptom.LOG_CORRUPTED):
 		return _generate_log(ContentGenerator.SiteCategory.DANGEROUS)
 	
-	if content.has_symptom(PageContent.Symptom.CPU_LOG_SUSPICIOUS):
-		return _generate_log(ContentGenerator.SiteCategory.SUSPICIOUS)
-	
-	# SUSPICIOUS сайт — лог SUSPICIOUS
 	if content.category == ContentGenerator.SiteCategory.SUSPICIOUS:
 		return _generate_log(ContentGenerator.SiteCategory.SUSPICIOUS)
 	
-	# NORMAL сайт — чистый лог
 	return _generate_log(ContentGenerator.SiteCategory.NORMAL)
 
 func _generate_log(site_category: int) -> String:
@@ -200,10 +167,7 @@ func _generate_cpu(category: int) -> String:
 	elif category == ContentGenerator.SiteCategory.SUSPICIOUS:
 		return str(randi_range(65, 85)) + "%"
 	else:
-		if randf() < 0.7:
-			return str(randi_range(90, 100)) + "%"
-		else:
-			return "███"
+		return str(randi_range(90, 100)) + "%" if randf() < 0.7 else "███"
 
 func _generate_ram(category: int) -> String:
 	if category == ContentGenerator.SiteCategory.NORMAL:
@@ -211,9 +175,10 @@ func _generate_ram(category: int) -> String:
 	elif category == ContentGenerator.SiteCategory.SUSPICIOUS:
 		return str(randi_range(128, 512)) + "MB"
 	else:
-		if randf() < 0.5:
+		var r = randf()
+		if r < 0.5:
 			return str(randi_range(1024, 4096)) + "MB"
-		elif randf() < 0.8:
+		elif r < 0.8:
 			return "CORRUPTED"
 		else:
 			return str(randi_range(1024, 4096)) + "MB [MEMETIC]"
@@ -224,10 +189,7 @@ func _generate_temp(category: int) -> String:
 	elif category == ContentGenerator.SiteCategory.SUSPICIOUS:
 		return str(randi_range(70, 90)) + "°C"
 	else:
-		if randf() < 0.6:
-			return str(randi_range(453, 3425)) + "°C"
-		else:
-			return "ERR"
+		return str(randi_range(453, 3425)) + "°C" if randf() < 0.6 else "ERR"
 
 func _generate_fan(category: int) -> String:
 	if category == ContentGenerator.SiteCategory.NORMAL:
@@ -244,10 +206,6 @@ func _generate_net(category: int) -> String:
 		return ["INTERMITTENT", "UNSTABLE"][randi() % 2] + " | PING: " + str(randi_range(100, 500)) + "ms"
 	else:
 		return ["RECURSIVE LOOP", "OUTBOUND TO ?", "TRANSMITTING", "████████"][randi() % 4]
-
-# =====================================================
-#  CATEGORY
-# =====================================================
 
 func _on_category_pressed(chosen_category: ContentGenerator.SiteCategory) -> void:
 	if _category_chosen:
@@ -278,6 +236,7 @@ func _on_category_pressed(chosen_category: ContentGenerator.SiteCategory) -> voi
 	
 	if DiskManager:
 		DiskManager.confirm_site_loaded()
+		# Возвращаем диск в инвентарь
 		var disk = DiskManager.eject_disk()
 		if disk:
 			var player = get_tree().get_first_node_in_group("player")

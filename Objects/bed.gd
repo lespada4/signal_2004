@@ -25,11 +25,27 @@ func interact() -> void:
 		print("[Bed] Quota not met — cannot sleep yet")
 		return
 	
+	var player = get_tree().get_first_node_in_group("player")
+	
+	# Проверяем инвентарь — нельзя спать с вещами
+	if player and player.inventory:
+		var has_items = false
+		for i in range(4):
+			if player.inventory.get_item(i) != null:
+				has_items = true
+				break
+		if has_items:
+			print("[Bed] Cannot sleep — return items to dispenser first!")
+			if label_3d:
+				label_3d.text = "RETURN ITEMS FIRST"
+				await get_tree().create_timer(2.0).timeout
+				if label_3d:
+					label_3d.text = "SLEEP"
+			return
+	
 	_is_sleeping = true
 	print("[Bed] Going to sleep...")
 	
-	# Затемнение
-	var player = get_tree().get_first_node_in_group("player")
 	if player and player.has_method("lock_controls"):
 		player.lock_controls()
 	
@@ -59,11 +75,9 @@ func interact() -> void:
 	
 	await get_tree().create_timer(sleep_duration).timeout
 	
-	# Переключаем день
 	DailyManager.current_day += 1
 	DailyManager.start_new_day()
 	
-	# Пробуждение
 	label.text = "Waking up..."
 	
 	await get_tree().create_timer(1.0).timeout

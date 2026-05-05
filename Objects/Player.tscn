@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dfxguass7dwj" path="res://Scripts/Player.gd" id="1_8r7yd"]
 [ext_resource type="Shader" uid="uid://bbf4xgucu6u05" path="res://Shader/PSXPost.gdshader" id="2_n6db0"]
+[ext_resource type="PackedScene" uid="uid://cm41p17muaxuv" path="res://Objects/death.tscn" id="2_qwxmt"]
 [ext_resource type="AudioStream" uid="uid://cd20lf5e3pqtf" path="res://Audio/842187__aardsreal__footstep-leaves-2.wav" id="3_i4q3a"]
 [ext_resource type="AudioStream" uid="uid://dd5k2r15mh7k0" path="res://Audio/268758__deleted_user_5093904__footsteps.wav" id="5_qwt6c"]
 [ext_resource type="Script" uid="uid://bm0wef537wujq" path="res://Scripts/inventory.gd" id="5_t1tke"]
@@ -46,6 +47,7 @@ shader_parameter/viewport_size_override = Vector2(640, 320)
 
 [node name="Player" type="CharacterBody3D" unique_id=796169799 groups=["player"]]
 script = ExtResource("1_8r7yd")
+death_screen_scene = ExtResource("2_qwxmt")
 walk_speed = 6.0
 footstep_carpet = Array[AudioStream]([ExtResource("3_i4q3a")])
 footstep_tile = Array[AudioStream]([ExtResource("5_qwt6c")])
@@ -54,7 +56,7 @@ bob_amount = 0.1
 sanity_drain_rate = 1.0
 attraction_radius = 10.0
 attraction_strength = 3.0
-attraction_max_angle = 50.0
+attraction_max_angle = 60.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1870890099]
 shape = SubResource("CapsuleShape3D_n6db0")

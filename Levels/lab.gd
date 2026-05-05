@@ -13,10 +13,8 @@ signal electronics_restored()
 @export var min_spawn_distance: float = 5.0
 @export var light_flicker_interval: float = 0.15
 @export var environment_transition_duration: float = 2.0
-
-# Скримеры во время джема
-@export var jammed_jumpscare_interval_min: float = 0.3
-@export var jammed_jumpscare_interval_max: float = 1
+@export var jammed_jumpscare_interval_min: float = 0.6
+@export var jammed_jumpscare_interval_max: float = 1.2
 
 const JAMMED_BRIGHTNESS: float = 0.35
 const JAMMED_SATURATION: float = 0.35
@@ -34,6 +32,8 @@ var _player: Player = null
 var _light_timer: float = 0.0
 var _terminals: Array[BrowserTerminal] = []
 var _environment_tween: Tween
+var _last_spawn_time: float = 0.0
+const SPAWN_COOLDOWN: float = 2.0
 
 func _ready() -> void:
 	add_to_group("enemy_manager")
@@ -57,7 +57,6 @@ func _ready() -> void:
 	
 	_set_environment_normal()
 	
-	# Скримеры выключены по умолчанию
 	if jumpscare_manager:
 		jumpscare_manager.enabled = false
 
@@ -75,7 +74,6 @@ func _process(delta: float) -> void:
 
 func _set_environment_jammed() -> void:
 	if not world_environment or not world_environment.environment: return
-	
 	_kill_env_tween()
 	_environment_tween = create_tween()
 	_environment_tween.set_parallel(true)
@@ -85,7 +83,6 @@ func _set_environment_jammed() -> void:
 
 func _set_environment_normal() -> void:
 	if not world_environment or not world_environment.environment: return
-	
 	_kill_env_tween()
 	_environment_tween = create_tween()
 	_environment_tween.set_parallel(true)
@@ -98,9 +95,18 @@ func _kill_env_tween() -> void:
 		_environment_tween.kill()
 
 func on_site_misidentified(site_category: ContentGenerator.SiteCategory) -> void:
+	var now = Time.get_ticks_msec() / 1000.0
+	if now - _last_spawn_time < SPAWN_COOLDOWN:
+		print("[EnemyManager] Spawn on cooldown, ignoring")
+		return
+	_last_spawn_time = now
+	
 	if site_category == ContentGenerator.SiteCategory.SUSPICIOUS or site_category == ContentGenerator.SiteCategory.DANGEROUS:
+		print("[EnemyManager] MISIDENTIFICATION! Jamming electronics...")
 		_jam_electronics()
 		_spawn_enemy()
+	else:
+		print("[EnemyManager] NORMAL site misidentified - no jam")
 
 func _jam_electronics() -> void:
 	if _is_jammed:
@@ -117,7 +123,6 @@ func _jam_electronics() -> void:
 	
 	_set_environment_jammed()
 	
-	# ВКЛЮЧАЕМ СКРИМЕРЫ — частые
 	if jumpscare_manager:
 		jumpscare_manager.enabled = true
 		jumpscare_manager.min_interval = jammed_jumpscare_interval_min
@@ -140,7 +145,6 @@ func _restore_electronics() -> void:
 	
 	_set_environment_normal()
 	
-	# ВЫКЛЮЧАЕМ СКРИМЕРЫ
 	if jumpscare_manager:
 		jumpscare_manager.enabled = false
 	
@@ -164,6 +168,7 @@ func _spawn_enemy() -> void:
 	get_tree().current_scene.add_child(enemy)
 	enemy.global_position = spawn_pos
 	_active_enemies.append(enemy)
+	print("[EnemyManager] Enemy spawned at: ", spawn_pos)
 
 func _find_spawn_position() -> Vector3:
 	if not _player: return Vector3.ZERO
@@ -217,6 +222,20 @@ func force_spawn_enemy() -> void:
 
 func get_active_enemies_count() -> int:
 	return _active_enemies.size()
+
+#func _input(event: InputEvent) -> void:
+	#if Input.is_action_just_pressed("reloader_debug"):
+		#_start_hunt()
+
+func _start_hunt() -> void:
+	print("[EnemyManager] HUNT ACTIVATED!")
+	if not _is_jammed:
+		_jam_electronics()
+		_spawn_enemy()
+	if jumpscare_manager:
+		jumpscare_manager.enabled = true
+		jumpscare_manager.min_interval = 0.4
+		jumpscare_manager.max_interval = 0.8
 
 func debug_restore_electronics() -> void: force_restore_electronics()
 func debug_clear_all_enemies() -> void: force_clear_all_enemies()

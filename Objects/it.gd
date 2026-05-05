@@ -44,6 +44,7 @@ const CHASE_STARE_THRESHOLD: float = 2.0
 const CHASE_LOST_DELAY: float = 2.0
 
 func _ready() -> void:
+	print("[Enemy] SPAWNED: ", get_instance_id(), " at ", global_position)
 	player = get_tree().get_first_node_in_group("player")
 	for node in get_tree().get_nodes_in_group("enemy_spawns"):
 		if node is Marker3D: spawn_points.append(node)
@@ -178,10 +179,11 @@ func _stop_chase() -> void:
 	_chase_stare_time = 0.0
 	_play_animation("Idle")
 	
+	# Сбрасываем таймер - телепортация начнется заново через teleport_interval секунд
+	_timer = 0.0
+	
 	await get_tree().create_timer(2.0).timeout
 	
-	if spawn_points.size() > 0:
-		global_position = spawn_points[randi() % spawn_points.size()].global_position
 	print("[Enemy] CHASE ENDED")
 
 func _is_visible_to_player_no_ray() -> bool:

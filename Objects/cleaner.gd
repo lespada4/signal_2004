@@ -39,9 +39,11 @@ func interact() -> void:
 				label_3d.text = "INSERT DISK"
 		return
 	
+	# Сохраняем диск ДО удаления из инвентаря
+	_cleaned_disk = disk
+	
 	# Забираем диск из инвентаря
 	player.inventory.remove_item(disk)
-	_cleaned_disk = disk
 	_start_cleaning()
 
 func _start_cleaning() -> void:
@@ -56,8 +58,8 @@ func _start_cleaning() -> void:
 	print("[DiskCleaner] Cleaning disk...")
 	await get_tree().create_timer(clean_duration).timeout
 	
-	# Очищаем диск
-	if DiskManager:
+	# Очищаем диск (с проверкой)
+	if _cleaned_disk and DiskManager:
 		DiskManager.clear_disk(_cleaned_disk)
 	
 	if sprite_3d:
@@ -67,7 +69,8 @@ func _start_cleaning() -> void:
 		label_3d.text = "TAKE DISK"
 
 func _give_back_disk(player: Player) -> void:
-	player.inventory.add_item(_cleaned_disk)
+	if _cleaned_disk:
+		player.inventory.add_item(_cleaned_disk)
 	_cleaned_disk = null
 	_is_cleaning = false
 	
